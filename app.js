@@ -3,13 +3,14 @@ let express = require('express');
 let path = require('path');
 let cookieParser = require('cookie-parser');
 let logger = require('morgan');
-let querystring = require('querystring');
 let queryParser = require('./helpers/query-parser');
+let cors = require('cors');
 
 let apiRouter = require('./routes/api');
 
 let app = express();
 
+app.use(cors({origin: true}));
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));

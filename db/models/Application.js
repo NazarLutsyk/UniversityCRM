@@ -10,7 +10,6 @@ const foreignKeys = {
     audioCall: 'applicationId',
     payment: 'applicationId',
     journal: 'applicationId',
-    homework: 'applicationId',
 };
 
 
@@ -33,7 +32,6 @@ module.exports = (sequelize, DataTypes) => {
         Application.hasMany(models.audio_call, {foreignKey: foreignKeys.audioCall});
         Application.hasMany(models.payment, {foreignKey: foreignKeys.payment});
         Application.belongsToMany(models.lesson, {through: models.journal, foreignKey: foreignKeys.journal});
-        Application.belongsToMany(models.lesson, {through: models.homework, foreignKey: foreignKeys.homework});
     };
 
     Application.tableName = tableName;

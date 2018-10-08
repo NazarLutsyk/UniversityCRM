@@ -1,25 +1,42 @@
 let db = require('../db/models');
 let ControllerError = require('../errors/ControllerError');
-let SqlHelper = require('../helpers/sql-helper');
 
 let controller = {};
 
 controller.getById = async function (req, res, next) {
-    let query = req.query;
-    console.log(query);
-    let table = 'clients';
-    let attributes = query.attributes.length > 0 ? query.attributes : undefined;
-    let includes = query.include.length > 0 ? db.client.buildJoins(query.include) : undefined;
-
-    //todo
-    console.log(includes);
-    let sql = SqlHelper.buildSql(table,attributes);
-
-    console.log(sql);
-    // res.json(await db.client.findById(req.params.id))
+    try {
+        let query = req.query;
+        let models = await db.client.findById(
+            req.params.id,
+            {
+                attributes: query.attributes,
+                order: query.sort,
+                offset: query.offset,
+                limit: query.limit
+            },
+        );
+        res.json(models);
+    } catch (e) {
+        next(new ControllerError(e.message, 400, 'Client controller'));
+    }
 };
 controller.getAll = async function (req, res, next) {
-    res.json(await db.client.findAll())
+    try {
+        let query = req.query;
+        let models = await db.client.findAll(
+            {
+                where: query.q,
+                attributes: query.attributes,
+                order: query.sort,
+                offset: query.offset,
+                limit: query.limit
+            },
+        );
+        res.json(models);
+    } catch (e) {
+        next(new ControllerError(e.message, 400, 'Client controller'));
+    }
+
 };
 controller.create = async function (req, res, next) {
     try {
