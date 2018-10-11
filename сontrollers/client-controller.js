@@ -23,6 +23,20 @@ controller.getById = async function (req, res, next) {
 controller.getAll = async function (req, res, next) {
     try {
         let query = req.query;
+
+        if (query.q.name && query.q.name.$like) {
+            query.q.name.$like = `%${query.q.name.$like}%`
+        }
+        if (query.q.surname && query.q.surname.$like) {
+            query.q.surname.$like = `%${query.q.surname.$like}%`
+        }
+        if (query.q.phone && query.q.phone.$like) {
+            query.q.phone.$like = `%${query.q.phone.$like}%`
+        }
+        if (query.q.email && query.q.email.$like) {
+            query.q.email.$like = `%${query.q.email.$like}%`
+        }
+
         let models = await db.client.findAll(
             {
                 where: query.q,
