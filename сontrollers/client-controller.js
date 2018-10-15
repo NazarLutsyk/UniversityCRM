@@ -46,7 +46,16 @@ controller.getAll = async function (req, res, next) {
                 limit: query.limit
             },
         );
-        res.json(models);
+        let count = await db.client.count(
+            {
+                where: query.q
+            }
+        );
+
+        res.json({
+            models,
+            count
+        });
     } catch (e) {
         next(new ControllerError(e.message, 400, 'Client controller'));
     }
@@ -54,8 +63,7 @@ controller.getAll = async function (req, res, next) {
 };
 controller.create = async function (req, res, next) {
     try {
-        let model = await db.client.create(req.body);
-        res.status(201).json(model);
+        res.status(201).json(await db.client.supersave(req.body));
     } catch (e) {
         next(new ControllerError(e.message, 400, 'Client controller'));
     }

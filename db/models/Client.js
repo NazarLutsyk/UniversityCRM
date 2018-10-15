@@ -1,3 +1,5 @@
+let validators = require('../validators');
+
 const tableName = 'client';
 
 const foreignKeys = {
@@ -7,10 +9,26 @@ const foreignKeys = {
 
 module.exports = (sequelize, DataTypes) => {
     const Client = sequelize.define(tableName, {
-        name: DataTypes.STRING,
-        surname: DataTypes.STRING,
-        phone: DataTypes.STRING,
-        email: DataTypes.STRING,
+        name: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            validate: {
+                hasLetters: validators.hasLetters,
+            }
+        },
+        surname: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            validate: {
+                hasLetters: validators.hasLetters,
+            }
+        },
+        phone: {
+            type: DataTypes.STRING,
+        },
+        email: {
+            type: DataTypes.STRING
+        },
         passport: DataTypes.STRING
     }, {});
 
@@ -20,6 +38,15 @@ module.exports = (sequelize, DataTypes) => {
     };
 
     Client.tableName = tableName;
+
+    Client.supersave = async function (client){
+        ['name', 'surname', 'phone', 'email'].forEach((value) => {
+            if (client[value]) {
+                client[value] = client[value].trim();
+            }
+        });
+        return await Client.create(client);
+    };
 
     return Client;
 };
