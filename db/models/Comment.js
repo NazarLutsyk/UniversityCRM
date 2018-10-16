@@ -1,7 +1,7 @@
 const tableName = 'comment';
 
 const foreignKeys = {
-    application: 'applicationId',
+    client: 'clientId',
 };
 
 module.exports = (sequelize, DataTypes) => {
@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
     }, {});
 
     Comment.associate = function (models) {
-        Comment.belongsTo(models.application, {foreignKey: foreignKeys.application});
+        Comment.belongsTo(models.client, {foreignKey: foreignKeys.client});
     };
 
     Comment.tableName = tableName;

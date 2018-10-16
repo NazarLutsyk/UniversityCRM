@@ -5,6 +5,7 @@ const tableName = 'client';
 const foreignKeys = {
     task: 'clientId',
     application: 'clientId',
+    comment: 'clientId',
 };
 
 module.exports = (sequelize, DataTypes) => {
@@ -35,6 +36,7 @@ module.exports = (sequelize, DataTypes) => {
     Client.associate = function (models) {
         Client.hasMany(models.task, {foreignKey: foreignKeys.task,});
         Client.hasMany(models.application, {foreignKey: foreignKeys.application});
+        Client.hasMany(models.comment, {foreignKey: foreignKeys.comment});
     };
 
     Client.tableName = tableName;
