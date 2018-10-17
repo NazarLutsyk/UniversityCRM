@@ -1,4 +1,5 @@
 let db = require('../db/models');
+let ControllerError = require('../errors/ControllerError');
 
 let controller = {};
 

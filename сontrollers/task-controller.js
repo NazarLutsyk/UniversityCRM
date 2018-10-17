@@ -1,4 +1,7 @@
+let _ = require('lodash');
+
 let db = require('../db/models');
+let ControllerError = require('../errors/ControllerError');
 
 let controller = {};
 
@@ -22,16 +25,65 @@ controller.getById = async function (req, res, next) {
 controller.getAll = async function (req, res, next) {
     try {
         let query = req.query;
+
+        if (_.has(query.q, 'message.$like')) {
+            query.q.message.$like = `%${query.q.message.$like}%`
+        }
+
+        let newIncludes = [];
+        if (query.include.length > 0) {
+            for (const includeTableName of query.include) {
+                let include = null;
+                let includeWhere = {};
+                let required = false;
+                if (_.has(query.q, 'client.name')) {
+                    includeWhere = {
+                        $or: [
+                            {
+                                name: {
+                                    $like: `%${query.q.client.name}%`
+                                }
+                            },
+                            {
+                                surname: {
+                                    $like: `%${query.q.client.name}%`
+                                }
+                            },
+                        ]
+                    };
+                    required = true;
+                }
+                include = {
+                    model: db[includeTableName],
+                    required,
+                    where: includeWhere
+                };
+                newIncludes.push(include);
+                delete query.q[includeTableName];
+            }
+        }
+        req.query.include = newIncludes;
+
         let models = await db.task.findAll(
             {
                 where: query.q,
                 attributes: query.attributes,
                 order: query.sort,
                 offset: query.offset,
-                limit: query.limit
+                limit: query.limit,
+                include: query.include,
             },
         );
-        res.json(models);
+        let count = await db.task.count(
+            {
+                where: query.q
+            }
+        );
+
+        res.json({
+            models,
+            count
+        });
     } catch (e) {
         next(new ControllerError(e.message, 400, 'Task controller'));
     }

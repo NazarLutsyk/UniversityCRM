@@ -1,4 +1,7 @@
+let _ = require('lodash');
+
 let db = require('../db/models');
+let ControllerError = require('../errors/ControllerError');
 
 let controller = {};
 
@@ -22,16 +25,60 @@ controller.getById = async function (req, res, next) {
 controller.getAll = async function (req, res, next) {
     try {
         let query = req.query;
+
+
+        if (_.has(query.q, 'name.$like')) {
+            query.q.name.$like = `%${query.q.name.$like}%`
+        }
+
+
+        let newIncludes = [];
+        if (query.include.length > 0) {
+            for (const includeTableName of query.include) {
+                let include = null;
+                let includeWhere = {};
+                let required = false;
+                if (_.has(query.q, 'course.name')) {
+                    includeWhere = {
+                        name: {
+                            $like: `%${query.q.course.name}%`
+                        }
+                    };
+                    required = true;
+                }
+                include = {
+                    model: db[includeTableName],
+                    required,
+                    where: includeWhere
+                };
+                newIncludes.push(include);
+                delete query.q[includeTableName];
+            }
+        }
+        req.query.include = newIncludes;
+
+
         let models = await db.group.findAll(
             {
                 where: query.q,
                 attributes: query.attributes,
                 order: query.sort,
                 offset: query.offset,
-                limit: query.limit
+                limit: query.limit,
+                include: req.query.include
             },
         );
-        res.json(models);
+
+        let count = await db.group.count(
+            {
+                where: query.q
+            }
+        );
+
+        res.json({
+            models,
+            count
+        });
     } catch (e) {
         next(new ControllerError(e.message, 400, 'Group controller'));
     }

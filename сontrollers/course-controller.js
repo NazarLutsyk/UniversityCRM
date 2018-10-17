@@ -1,4 +1,7 @@
+let _ = require('lodash');
+
 let db = require('../db/models');
+let ControllerError = require('../errors/ControllerError');
 
 let controller = {};
 
@@ -22,6 +25,11 @@ controller.getById = async function (req, res, next) {
 controller.getAll = async function (req, res, next) {
     try {
         let query = req.query;
+
+        if (_.has(query.q, 'name.$like')) {
+            query.q.name.$like = `%${query.q.name.$like}%`
+        }
+
         let models = await db.course.findAll(
             {
                 where: query.q,
@@ -31,7 +39,16 @@ controller.getAll = async function (req, res, next) {
                 limit: query.limit
             },
         );
-        res.json(models);
+        let count = await db.course.count(
+            {
+                where: query.q
+            }
+        );
+
+        res.json({
+            models,
+            count
+        });
     } catch (e) {
         next(new ControllerError(e.message, 400, 'Course controller'));
     }
@@ -39,7 +56,12 @@ controller.getAll = async function (req, res, next) {
 };
 controller.create = async function (req, res, next) {
     try {
-        let model = await db.course.create(req.body);
+        let courseBuild = req.body;
+        courseBuild.discount = req.body.discount ? req.body.discount : 0;
+        courseBuild.resultPrice = courseBuild.fullPrice - (courseBuild.fullPrice * (courseBuild.discount / 100));
+
+        let model = await db.course.create(courseBuild);
+
         res.status(201).json(model);
     } catch (e) {
         next(new ControllerError(e.message, 400, 'Course controller'));
