@@ -36,7 +36,7 @@ controller.getAll = async function (req, res, next) {
                 let include = null;
                 let includeWhere = {};
                 let required = false;
-                if (_.has(query.q, 'client.name')) {
+                if (_.has(query.q, 'client.name')  && includeTableName === 'client') {
                     includeWhere = {
                         $or: [
                             {
@@ -76,7 +76,8 @@ controller.getAll = async function (req, res, next) {
         );
         let count = await db.task.count(
             {
-                where: query.q
+                where: query.q,
+                include: query.include,
             }
         );
 

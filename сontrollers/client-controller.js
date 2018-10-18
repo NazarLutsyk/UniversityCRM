@@ -50,7 +50,8 @@ controller.getAll = async function (req, res, next) {
         );
         let count = await db.client.count(
             {
-                where: query.q
+                where: query.q,
+                include: query.include,
             }
         );
 

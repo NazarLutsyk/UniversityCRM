@@ -14,7 +14,7 @@ const foreignKeys = {
 
 module.exports = (sequelize, DataTypes) => {
     const Application = sequelize.define(tableName, {
-        date: DataTypes.DATE,
+        date: DataTypes.DATEONLY,
         fullPrice: DataTypes.INTEGER,
         discount: DataTypes.INTEGER,
         resultPrice: DataTypes.INTEGER,

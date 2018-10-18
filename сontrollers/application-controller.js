@@ -1,3 +1,5 @@
+let _ = require('lodash');
+
 let db = require('../db/models');
 let ControllerError = require('../errors/ControllerError');
 
@@ -23,16 +25,77 @@ controller.getById = async function (req, res, next) {
 controller.getAll = async function (req, res, next) {
     try {
         let query = req.query;
+
+        let newIncludes = [];
+        if (query.include.length > 0) {
+            for (const includeTableName of query.include) {
+                let include = null;
+                let includeWhere = {};
+                let required = false;
+                if (_.has(query.q, 'client.name') && includeTableName === 'client') {
+                    includeWhere = {
+                        name: {
+                            $like: `%${query.q.client.name}%`
+                        }
+                    };
+                    required = true;
+                }
+                if (_.has(query.q, 'course.name') && includeTableName === 'course') {
+                    includeWhere = {
+                        name: {
+                            $like: `%${query.q.course.name}%`
+                        }
+                    };
+                    required = true;
+                }
+                if (_.has(query.q, 'group.name') && includeTableName === 'group') {
+                    includeWhere = {
+                        name: {
+                            $like: `%${query.q.group.name}%`
+                        }
+                    };
+                    required = true;
+                }
+                if (_.has(query.q, 'source.name') && includeTableName === 'source') {
+                    includeWhere = {
+                        name: {
+                            $like: `%${query.q.source.name}%`
+                        }
+                    };
+                    required = true;
+                }
+                include = {
+                    model: db[includeTableName],
+                    required,
+                    where: includeWhere
+                };
+                newIncludes.push(include);
+                delete query.q[includeTableName];
+            }
+        }
+        query.include = newIncludes;
+
         let models = await db.application.findAll(
             {
                 where: query.q,
                 attributes: query.attributes,
                 order: query.sort,
                 offset: query.offset,
-                limit: query.limit
+                limit: query.limit,
+                include: query.include,
             },
         );
-        res.json(models);
+        let count = await db.application.count(
+            {
+                where: query.q,
+                include: query.include,
+            }
+        );
+
+        res.json({
+            models,
+            count
+        });
     } catch (e) {
         next(new ControllerError(e.message, 400, 'Application controller'));
     }
@@ -40,7 +103,15 @@ controller.getAll = async function (req, res, next) {
 };
 controller.create = async function (req, res, next) {
     try {
-        let model = await db.application.create(req.body);
+        let applicationBuild = req.body;
+        let course = await db.course.findById(req.body.courseId);
+
+        applicationBuild.discount = req.body.discount ? req.body.discount : course.discount;
+        applicationBuild.fullPrice = course.fullPrice;
+        applicationBuild.resultPrice = applicationBuild.fullPrice - (applicationBuild.fullPrice * (applicationBuild.discount / 100));
+        applicationBuild.leftToPay = applicationBuild.resultPrice;
+
+        let model = await db.application.create(applicationBuild);
         res.status(201).json(model);
     } catch (e) {
         next(new ControllerError(e.message, 400, 'Application controller'));

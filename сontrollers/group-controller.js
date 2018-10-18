@@ -38,7 +38,7 @@ controller.getAll = async function (req, res, next) {
                 let include = null;
                 let includeWhere = {};
                 let required = false;
-                if (_.has(query.q, 'course.name')) {
+                if (_.has(query.q, 'course.name')  && includeTableName === 'course') {
                     includeWhere = {
                         name: {
                             $like: `%${query.q.course.name}%`
@@ -55,8 +55,7 @@ controller.getAll = async function (req, res, next) {
                 delete query.q[includeTableName];
             }
         }
-        req.query.include = newIncludes;
-
+        query.include = newIncludes;
 
         let models = await db.group.findAll(
             {
@@ -65,13 +64,14 @@ controller.getAll = async function (req, res, next) {
                 order: query.sort,
                 offset: query.offset,
                 limit: query.limit,
-                include: req.query.include
+                include: query.include
             },
         );
 
         let count = await db.group.count(
             {
-                where: query.q
+                where: query.q,
+                include: query.include,
             }
         );
 
