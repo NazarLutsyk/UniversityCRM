@@ -14,7 +14,8 @@ controller.getById = async function (req, res, next) {
                 attributes: query.attributes,
                 order: query.sort,
                 offset: query.offset,
-                limit: query.limit
+                limit: query.limit,
+                include: query.include
             },
         );
         res.json(models);
@@ -103,6 +104,7 @@ controller.update = async function (req, res, next) {
         let id = req.params.id;
         let model = await db.task.findById(id);
         if (model) {
+            console.log(req.body);
             res.status(201).json(await model.update(req.body));
         } else {
             next(new ControllerError('Model not found', 400, 'Task controller'))

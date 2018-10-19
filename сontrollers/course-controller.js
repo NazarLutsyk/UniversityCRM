@@ -70,9 +70,12 @@ controller.create = async function (req, res, next) {
 controller.update = async function (req, res, next) {
     try {
         let id = req.params.id;
+            let courseBuild = req.body;
+        courseBuild.discount = req.body.discount ? req.body.discount : 0;
+        courseBuild.resultPrice = courseBuild.fullPrice - (courseBuild.fullPrice * (courseBuild.discount / 100));
         let model = await db.course.findById(id);
         if (model) {
-            res.status(201).json(await model.update(req.body));
+            res.status(201).json(await model.update(courseBuild));
         } else {
             next(new ControllerError('Model not found', 400, 'Course controller'))
         }
