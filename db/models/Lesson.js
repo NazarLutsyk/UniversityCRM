@@ -1,4 +1,4 @@
-const tableName = 'lesson';
+    const tableName = 'lesson';
 
 const foreignKeys = {
     group: 'groupId',

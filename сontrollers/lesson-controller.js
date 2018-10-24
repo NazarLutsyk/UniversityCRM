@@ -29,10 +29,22 @@ controller.getAll = async function (req, res, next) {
                 attributes: query.attributes,
                 order: query.sort,
                 offset: query.offset,
-                limit: query.limit
+                limit: query.limit,
+                include: query.include,
             },
         );
-        res.json(models);
+
+        let count = await db.lesson.count(
+            {
+                where: query.q,
+                include: query.include,
+            }
+        );
+
+        res.json({
+            models,
+            count
+        });
     } catch (e) {
         next(new ControllerError(e.message, 400, 'Lesson controller'));
     }

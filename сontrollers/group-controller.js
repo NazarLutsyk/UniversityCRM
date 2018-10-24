@@ -14,7 +14,8 @@ controller.getById = async function (req, res, next) {
                 attributes: query.attributes,
                 order: query.sort,
                 offset: query.offset,
-                limit: query.limit
+                limit: query.limit,
+                include: query.include
             },
         );
         res.json(models);
@@ -43,6 +44,12 @@ controller.getAll = async function (req, res, next) {
                         name: {
                             $like: `%${query.q.course.name}%`
                         }
+                    };
+                    required = true;
+                }
+                if (_.has(query.q, 'course.id')  && includeTableName === 'course') {
+                    includeWhere = {
+                        id: query.q.course.id
                     };
                     required = true;
                 }

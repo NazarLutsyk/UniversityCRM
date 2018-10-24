@@ -14,7 +14,8 @@ controller.getById = async function (req, res, next) {
                 attributes: query.attributes,
                 order: query.sort,
                 offset: query.offset,
-                limit: query.limit
+                limit: query.limit,
+                include: query.include
             },
         );
         res.json(models);
@@ -53,6 +54,12 @@ controller.getAll = async function (req, res, next) {
                         name: {
                             $like: `%${query.q.group.name}%`
                         }
+                    };
+                    required = true;
+                }
+                if (_.has(query.q, 'group.id') && includeTableName === 'group') {
+                    includeWhere = {
+                        id: query.q.group.id
                     };
                     required = true;
                 }
