@@ -7,7 +7,6 @@ router.route('/')
 
 router.route('/:id')
     .get(controllers.payment.getById)
-    .put(controllers.payment.update)
     .delete(controllers.payment.remove);
 
 module.exports = router;
