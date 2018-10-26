@@ -1,3 +1,5 @@
+let _ = require('lodash');
+
 let db = require('../db/models');
 let ControllerError = require('../errors/ControllerError');
 
@@ -23,6 +25,12 @@ controller.getById = async function (req, res, next) {
 controller.getAll = async function (req, res, next) {
     try {
         let query = req.query;
+
+        if (_.has(query.q, 'text.$like')) {
+            query.q.text.$like = `%${query.q.text.$like}%`
+        }
+
+
         let models = await db.comment.findAll(
             {
                 where: query.q,
@@ -32,7 +40,17 @@ controller.getAll = async function (req, res, next) {
                 limit: query.limit
             },
         );
-        res.json(models);
+        let count = await db.comment.count(
+            {
+                where: query.q,
+                include: query.include,
+            }
+        );
+
+        res.json({
+            models,
+            count
+        });
     } catch (e) {
         next(new ControllerError(e.message, 400, 'Comment controller'));
     }

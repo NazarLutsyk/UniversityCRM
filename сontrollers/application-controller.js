@@ -41,6 +41,12 @@ controller.getAll = async function (req, res, next) {
                     };
                     required = true;
                 }
+                if (_.has(query.q, 'client.id') && includeTableName === 'client') {
+                    includeWhere = {
+                        id: query.q.client.id
+                    };
+                    required = true;
+                }
                 if (_.has(query.q, 'course.name') && includeTableName === 'course') {
                     includeWhere = {
                         name: {
