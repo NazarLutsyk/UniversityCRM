@@ -1,0 +1,6 @@
+module.exports = {
+    MANAGER_ROLE: 'MANAGER_ROLE',
+    BOSS_ROLE: 'BOSS_ROLE',
+    REVIEWER_ROLE: 'REVIEWER_ROLE',
+    TEACHER_ROLE: 'TEACHER_ROLE',
+};

@@ -11,5 +11,8 @@ controllers.lesson = require('./lesson-controller');
 controllers.payment = require('./payment-controller');
 controllers.source = require('./source-controller');
 controllers.task = require('./task-controller');
+controllers.city = require('./city-controller');
+controllers.manager = require('./manager-controller');
+controllers.role = require('./role-controller');
 
 module.exports = controllers;

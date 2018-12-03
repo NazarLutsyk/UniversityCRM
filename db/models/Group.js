@@ -4,6 +4,7 @@ const foreignKeys = {
     application: 'groupId',
     lesson: 'groupId',
     course: 'courseId',
+    city: 'cityId',
 };
 
 module.exports = (sequelize, DataTypes) => {
@@ -17,6 +18,7 @@ module.exports = (sequelize, DataTypes) => {
         Group.hasMany(models.application, {foreignKey: foreignKeys.application});
         Group.hasMany(models.lesson, {foreignKey: foreignKeys.lesson});
         Group.belongsTo(models.course, {foreignKey: foreignKeys.course});
+        Group.belongsTo(models.city, {foreignKey: foreignKeys.city});
     };
 
     Group.tableName = tableName;
