@@ -53,6 +53,14 @@ controller.getAll = async function (req, res, next) {
                     };
                     required = true;
                 }
+                if (_.has(query.q, 'city.name')  && includeTableName === 'city') {
+                    includeWhere = {
+                        name: {
+                            $like: `%${query.q.city.name}%`
+                        }
+                    };
+                    required = true;
+                }
                 include = {
                     model: db[includeTableName],
                     required,

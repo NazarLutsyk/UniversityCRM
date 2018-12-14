@@ -11,6 +11,7 @@ workers.startReceivingEmails = function () {
             io.emit('mail', mail);
         })
         .catch((err) => {
+            console.log(err);
             io.emit('error', err);
         });
 };

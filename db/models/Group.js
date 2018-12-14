@@ -12,6 +12,7 @@ module.exports = (sequelize, DataTypes) => {
         name: DataTypes.STRING,
         startDate: DataTypes.DATEONLY,
         startTime: DataTypes.TIME,
+        countOfPractice: DataTypes.INTEGER
     }, {});
 
     Group.associate = function (models) {
