@@ -14,7 +14,8 @@ controller.getById = async function (req, res, next) {
                 attributes: query.attributes,
                 order: query.sort,
                 offset: query.offset,
-                limit: query.limit
+                limit: query.limit,
+                include: query.include
             },
         );
         res.json(models);
@@ -26,21 +27,60 @@ controller.getAll = async function (req, res, next) {
     try {
         let query = req.query;
 
+        if (_.has(query.q, 'name.$like')) {
+            query.q.name.$like = `%${query.q.name.$like}%`
+        }
+        if (_.has(query.q, 'surname.$like')) {
+            query.q.surname.$like = `%${query.q.surname.$like}%`
+        }
+        if (_.has(query.q, 'login.$like')) {
+            query.q.login.$like = `%${query.q.login.$like}%`
+        }
+        if (_.has(query.q, 'role.$like')) {
+            query.q.role.$like = `%${query.q.role.$like}%`
+        }
+
+        let newIncludes = [];
+        if (query.include.length > 0) {
+            for (const includeTableName of query.include) {
+                let include = null;
+                let includeWhere = {};
+                let required = false;
+                if (_.has(query.q, 'city.name') && includeTableName === 'city') {
+                    includeWhere = {
+                        name: {
+                            $like: `%${query.q.city.name}%`
+                        }
+                    };
+                    required = true;
+                }
+                include = {
+                    model: db[includeTableName],
+                    required,
+                    where: includeWhere
+                };
+                newIncludes.push(include);
+                delete query.q[includeTableName];
+            }
+        }
+        query.include = newIncludes;
+
         let models = await db.manager.findAll(
             {
                 where: query.q,
                 attributes: query.attributes,
                 order: query.sort,
                 offset: query.offset,
-                limit: query.limit
+                limit: query.limit,
+                include: query.include,
             },
         );
         let count = await db.manager.count(
             {
-                where: query.q
+                where: query.q,
+                include: query.include,
             }
         );
-
         res.json({
             models,
             count
