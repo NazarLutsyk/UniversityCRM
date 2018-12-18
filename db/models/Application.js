@@ -20,7 +20,8 @@ module.exports = (sequelize, DataTypes) => {
         discount: DataTypes.INTEGER,
         resultPrice: DataTypes.INTEGER,
         leftToPay: DataTypes.INTEGER,
-        withPractice: DataTypes.TINYINT,
+        hasPractice: DataTypes.TINYINT,
+        wantPractice: DataTypes.TINYINT,
     }, {});
 
     Application.associate = function (models) {

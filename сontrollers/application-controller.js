@@ -135,7 +135,23 @@ controller.update = async function (req, res, next) {
         let id = req.params.id;
         let model = await db.application.findById(id);
         if (model) {
-            res.status(201).json(await model.update(req.body));
+            let updatedApp = await model.update(req.body);
+            if (req.body.hasPractice === 1 || req.body.hasPractice === 0) {
+                let group = await db.group.findById(updatedApp.groupId);
+                if (group) {
+                    let freePractice = group.freePractice;
+                    let usedPractice = group.usedPractice;
+                    if (req.body.hasPractice){
+                        --freePractice;
+                        ++usedPractice;
+                    } else {
+                        ++freePractice;
+                        --usedPractice;
+                    }
+                    await group.update({freePractice, usedPractice});
+                }
+            }
+            res.status(201).json(updatedApp);
         } else {
             next(new ControllerError('Model not found', 400, 'Application controller'))
         }
