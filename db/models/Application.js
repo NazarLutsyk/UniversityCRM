@@ -2,7 +2,7 @@ const tableName = 'application';
 
 const foreignKeys = {
     client: 'clientId',
-    source: 'sourceId',
+    source: 'applicationId',
     course: 'courseId',
     group: 'groupId',
     contract: 'applicationId',
@@ -26,7 +26,6 @@ module.exports = (sequelize, DataTypes) => {
 
     Application.associate = function (models) {
         Application.belongsTo(models.client, {foreignKey: foreignKeys.client});
-        Application.belongsTo(models.source, {foreignKey: foreignKeys.source});
         Application.belongsTo(models.course, {foreignKey: foreignKeys.course});
         Application.belongsTo(models.group, {foreignKey: foreignKeys.group});
         Application.belongsTo(models.city, {foreignKey: foreignKeys.city});
@@ -34,6 +33,7 @@ module.exports = (sequelize, DataTypes) => {
         Application.hasMany(models.audio_call, {foreignKey: foreignKeys.audioCall});
         Application.hasMany(models.payment, {foreignKey: foreignKeys.payment});
         Application.belongsToMany(models.lesson, {through: models.journal, foreignKey: foreignKeys.journal});
+        Application.belongsToMany(models.source, {through: models.source_application, foreignKey: foreignKeys.source});
     };
 
     Application.tableName = tableName;

@@ -10,7 +10,8 @@ module.exports = (sequelize, DataTypes) => {
     }, {});
 
     Source.associate = function (models) {
-        Source.hasMany(models.application, {foreignKey: foreignKeys.source});
+        Source.belongsToMany(models.application, {through: models.source_application, foreignKey: foreignKeys.application});
+
     };
 
     Source.tableName = tableName;

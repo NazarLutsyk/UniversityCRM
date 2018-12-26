@@ -116,6 +116,11 @@ controller.getAll = async function (req, res, next) {
 };
 controller.create = async function (req, res, next) {
     try {
+        let sources = [];
+        if (_.has(req.body, 'sources')) {
+            sources = req.body.sources;
+            delete req.body.sources;
+        }
         let applicationBuild = req.body;
         let course = await db.course.findById(req.body.courseId);
 
@@ -125,6 +130,11 @@ controller.create = async function (req, res, next) {
         applicationBuild.leftToPay = applicationBuild.resultPrice;
 
         let model = await db.application.create(applicationBuild);
+
+        if (sources && sources.length > 0) {
+            await model.setSources(sources);
+        }
+
         res.status(201).json(model);
     } catch (e) {
         next(new ControllerError(e.message, 400, 'Application controller'));
@@ -135,13 +145,17 @@ controller.update = async function (req, res, next) {
         let id = req.params.id;
         let model = await db.application.findById(id);
         if (model) {
+            if (_.has(req.body, 'sources')) {
+                await model.setSources(req.body.sources);
+                delete req.body.sources;
+            }
             let updatedApp = await model.update(req.body);
             if (req.body.hasPractice === 1 || req.body.hasPractice === 0) {
                 let group = await db.group.findById(updatedApp.groupId);
                 if (group) {
                     let freePractice = group.freePractice;
                     let usedPractice = group.usedPractice;
-                    if (req.body.hasPractice){
+                    if (req.body.hasPractice) {
                         --freePractice;
                         ++usedPractice;
                     } else {
