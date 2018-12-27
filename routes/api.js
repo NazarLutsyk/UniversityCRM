@@ -15,6 +15,7 @@ let TaskRouter = require('./task-router');
 let CityRouter = require('./city-router');
 let ManagerRouter = require('./manager-router');
 let RoleRouter = require('./role-router');
+let AuthRouter = require('./auth-router');
 
 router.use('/applications', ApplicationRouter);
 router.use('/audiocalls', AudiocallRouter);
@@ -30,8 +31,6 @@ router.use('/tasks', TaskRouter);
 router.use('/cities', CityRouter);
 router.use('/managers', ManagerRouter);
 router.use('/roles', RoleRouter);
-
-module.exports = router;
-
+router.use('/auth', AuthRouter);
 
 module.exports = router;
