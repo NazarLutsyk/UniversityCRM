@@ -1,4 +1,9 @@
 let express = require('express');
+let guard = require('node-auth-guard');
+
+let authMiddleware = require('../middleware/auth-middleware');
+let ROLES = require('../config/roles');
+
 let router = express.Router();
 
 let ApplicationRouter = require('./application-router');
@@ -17,19 +22,19 @@ let ManagerRouter = require('./manager-router');
 let RoleRouter = require('./role-router');
 let AuthRouter = require('./auth-router');
 
-router.use('/applications', ApplicationRouter);
-router.use('/audiocalls', AudiocallRouter);
-router.use('/clients', ClientRouter);
-router.use('/comments', CommentRouter);
-router.use('/contracts', ContractRouter);
-router.use('/courses', CourseRouter);
-router.use('/groups', GroupRouter);
-router.use('/lessons', LessonRouter);
-router.use('/payments', PaymentRouter);
-router.use('/sources', SourceRouter);
-router.use('/tasks', TaskRouter);
-router.use('/cities', CityRouter);
-router.use('/managers', ManagerRouter);
+router.use('/applications', authMiddleware.isLoggedIn, ApplicationRouter);
+router.use('/audiocalls', authMiddleware.isLoggedIn, AudiocallRouter);
+router.use('/clients', authMiddleware.isLoggedIn, ClientRouter);
+router.use('/comments', authMiddleware.isLoggedIn, CommentRouter);
+router.use('/contracts', authMiddleware.isLoggedIn, ContractRouter);
+router.use('/courses', authMiddleware.isLoggedIn, CourseRouter);
+router.use('/groups', authMiddleware.isLoggedIn, GroupRouter);
+router.use('/lessons', authMiddleware.isLoggedIn, LessonRouter);
+router.use('/payments', authMiddleware.isLoggedIn, PaymentRouter);
+router.use('/sources', authMiddleware.isLoggedIn, SourceRouter);
+router.use('/tasks', authMiddleware.isLoggedIn, TaskRouter);
+router.use('/cities', authMiddleware.isLoggedIn, CityRouter);
+router.use('/managers', authMiddleware.isLoggedIn, guard.roles(ROLES.BOSS_ROLE), ManagerRouter);
 router.use('/roles', RoleRouter);
 router.use('/auth', AuthRouter);
 

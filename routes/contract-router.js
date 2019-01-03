@@ -1,6 +1,8 @@
 let router = require('express').Router();
 let controllers = require('../сontrollers');
 
+//todo guards
+
 router.route('/')
     .get(controllers.contract.getAll)
     .post(controllers.contract.create);

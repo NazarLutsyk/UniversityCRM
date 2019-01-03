@@ -14,8 +14,8 @@ module.exports = (sequelize, DataTypes) => {
 
     City.associate = function (models) {
         City.hasMany(models.application, {foreignKey: foreignKeys.application});
-        City.hasMany(models.manager, {foreignKey: foreignKeys.manager});
         City.hasMany(models.group, {foreignKey: foreignKeys.group});
+        City.belongsToMany(models.manager, {through: models.city_manager,foreignKey: foreignKeys.manager});
     };
 
     City.tableName = tableName;

@@ -1,13 +1,15 @@
 let router = require('express').Router();
 let controllers = require('../сontrollers');
+let guard = require('node-auth-guard');
+let ROLES = require('../config/roles');
 
 router.route('/')
-    .get(controllers.course.getAll)
-    .post(controllers.course.create);
+    .get(guard.roles(ROLES.BOSS_ROLE, ROLES.MANAGER_ROLE, ROLES.TEACHER_ROLE),controllers.course.getAll)
+    .post(guard.roles(ROLES.BOSS_ROLE, ROLES.MANAGER_ROLE),controllers.course.create);
 
 router.route('/:id')
-    .get(controllers.course.getById)
-    .put(controllers.course.update)
-    .delete(controllers.course.remove);
+    .get(guard.roles(ROLES.BOSS_ROLE, ROLES.MANAGER_ROLE, ROLES.TEACHER_ROLE),controllers.course.getById)
+    .put(guard.roles(ROLES.BOSS_ROLE, ROLES.MANAGER_ROLE),controllers.course.update)
+    .delete(guard.roles(ROLES.BOSS_ROLE, ROLES.MANAGER_ROLE),controllers.course.remove);
 
 module.exports = router;

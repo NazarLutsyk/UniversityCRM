@@ -92,7 +92,18 @@ controller.getAll = async function (req, res, next) {
 };
 controller.create = async function (req, res, next) {
     try {
+        let cities = [];
+        if (_.has(req.body, 'cities')) {
+            cities = req.body.cities;
+            delete req.body.cities;
+        }
+
         let model = await db.manager.create(req.body);
+
+        if (cities && cities.length > 0) {
+            await model.setCities(cities);
+        }
+
         res.status(201).json(model);
     } catch (e) {
         next(new ControllerError(e.message, 400, 'Manager controller'));
@@ -103,6 +114,10 @@ controller.update = async function (req, res, next) {
         let id = req.params.id;
         let model = await db.manager.findById(id);
         if (model) {
+            if (_.has(req.body, 'cities')) {
+                await model.setCities(req.body.cities);
+                delete req.body.cities;
+            }
             res.status(201).json(await model.update(req.body));
         } else {
             next(new ControllerError('Model not found', 400, 'Manager controller'))

@@ -1,12 +1,14 @@
 let router = require('express').Router();
 let controllers = require('../сontrollers');
+let guard = require('node-auth-guard');
+let ROLES = require('../config/roles');
 
 router.route('/')
-    .get(controllers.payment.getAll)
-    .post(controllers.payment.create);
+    .get(guard.roles(ROLES.BOSS_ROLE, ROLES.MANAGER_ROLE), controllers.payment.getAll)
+    .post(guard.roles(ROLES.BOSS_ROLE, ROLES.MANAGER_ROLE), controllers.payment.create);
 
 router.route('/:id')
-    .get(controllers.payment.getById)
-    .delete(controllers.payment.remove);
+    .get(guard.roles(ROLES.BOSS_ROLE, ROLES.MANAGER_ROLE), controllers.payment.getById)
+    .delete(guard.roles(ROLES.BOSS_ROLE, ROLES.MANAGER_ROLE), controllers.payment.remove);
 
 module.exports = router;

@@ -1,7 +1,7 @@
 const tableName = 'manager';
 
 const foreignKeys = {
-    city: 'cityId',
+    city: 'managerId',
 };
 
 module.exports = (sequelize, DataTypes) => {
@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
     }, {});
 
     Manager.associate = function (models) {
-        Manager.belongsTo(models.city, {foreignKey: foreignKeys.city});
+        Manager.belongsToMany(models.city, {through: models.city_manager,foreignKey: foreignKeys.city});
     };
 
     Manager.tableName = tableName;

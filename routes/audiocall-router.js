@@ -1,6 +1,8 @@
 let router = require('express').Router();
 let controllers = require('../сontrollers');
 
+//todo guards
+
 router.route('/')
     .get(controllers.audiocall.getAll)
     .post(controllers.audiocall.create);

@@ -6,6 +6,7 @@ let logger = require('morgan');
 let cors = require('cors');
 let session = require('express-session');
 let helmet = require('helmet');
+let guard = require('node-auth-guard');
 
 require('./config/passport');
 let passport = require('passport');
@@ -30,6 +31,10 @@ app.use(session({
 app.use(queryParser());
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(guard.initialize({
+    principalPath: 'user',
+    rolesField: 'role'
+}));
 
 app.get('/', (req, res, next) => {
     res.end('OWU CRM API');
