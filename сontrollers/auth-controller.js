@@ -23,8 +23,7 @@ controller.login = async function (req, res, next) {
 controller.principal = async function (req, res, next) {
     try {
         if (req.user) {
-            let principal = await db.manager.findById(req.user.id);
-            return res.json(principal);
+            return res.json(req.user);
         } else {
             return res.json(null);
         }

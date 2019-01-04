@@ -7,7 +7,9 @@ passport.serializeUser(function (manager, done) {
 });
 passport.deserializeUser(async function (id, done) {
     try {
-        let manager = await db.manager.findById(id);
+        let manager = await db.manager.findByPk(id, {
+            include: [db.city]
+        });
         return done(null, manager);
     } catch (e) {
         return done(e);

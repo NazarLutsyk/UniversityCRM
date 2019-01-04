@@ -13,6 +13,7 @@ controllers.source = require('./source-controller');
 controllers.task = require('./task-controller');
 controllers.city = require('./city-controller');
 controllers.manager = require('./manager-controller');
+controllers.eapplication = require('./eapplication-controller');
 controllers.role = require('./role-controller');
 controllers.auth = require('./auth-controller');
 

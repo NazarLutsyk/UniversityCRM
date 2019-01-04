@@ -19,6 +19,7 @@ let SourceRouter = require('./source-router');
 let TaskRouter = require('./task-router');
 let CityRouter = require('./city-router');
 let ManagerRouter = require('./manager-router');
+let EapplicationRouter = require('./eapplication-router');
 let RoleRouter = require('./role-router');
 let AuthRouter = require('./auth-router');
 
@@ -34,6 +35,7 @@ router.use('/payments', authMiddleware.isLoggedIn, PaymentRouter);
 router.use('/sources', authMiddleware.isLoggedIn, SourceRouter);
 router.use('/tasks', authMiddleware.isLoggedIn, TaskRouter);
 router.use('/cities', authMiddleware.isLoggedIn, CityRouter);
+router.use('/eapplications', authMiddleware.isLoggedIn, EapplicationRouter);
 router.use('/managers', authMiddleware.isLoggedIn, guard.roles(ROLES.BOSS_ROLE), ManagerRouter);
 router.use('/roles', RoleRouter);
 router.use('/auth', AuthRouter);

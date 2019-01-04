@@ -10,7 +10,8 @@ exports.LocalSignIn = new LocalStrategy({
             where: {
                 login: login,
                 password: password
-            }
+            },
+            include: [db.city]
         });
         if (user) {
             done(null, user);
