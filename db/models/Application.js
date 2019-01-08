@@ -29,11 +29,32 @@ module.exports = (sequelize, DataTypes) => {
         Application.belongsTo(models.course, {foreignKey: foreignKeys.course});
         Application.belongsTo(models.group, {foreignKey: foreignKeys.group});
         Application.belongsTo(models.city, {foreignKey: foreignKeys.city});
-        Application.hasOne(models.contract, {foreignKey: foreignKeys.contract});
-        Application.hasMany(models.audio_call, {foreignKey: foreignKeys.audioCall});
-        Application.hasMany(models.payment, {foreignKey: foreignKeys.payment});
-        Application.belongsToMany(models.lesson, {through: models.journal, foreignKey: foreignKeys.journal});
-        Application.belongsToMany(models.source, {through: models.source_application, foreignKey: foreignKeys.source});
+        Application.hasOne(models.contract, {
+            foreignKey: foreignKeys.contract,
+            onDelete: 'cascade',
+            onUpdate: 'cascade',
+            hooks: true
+        });
+        Application.hasMany(models.audio_call, {
+            foreignKey: foreignKeys.audioCall,
+            onDelete: 'cascade',
+            onUpdate: 'cascade',
+            hooks: true
+        });
+        Application.hasMany(models.payment, {
+            foreignKey: foreignKeys.payment,
+            onDelete: 'cascade',
+            onUpdate: 'cascade',
+            hooks: true
+        });
+        Application.belongsToMany(models.lesson, {
+            through: models.journal,
+            foreignKey: foreignKeys.journal
+        });
+        Application.belongsToMany(models.source, {
+            through: models.source_application,
+            foreignKey: foreignKeys.source
+        });
     };
 
     Application.tableName = tableName;

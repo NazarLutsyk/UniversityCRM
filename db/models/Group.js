@@ -18,7 +18,12 @@ module.exports = (sequelize, DataTypes) => {
 
     Group.associate = function (models) {
         Group.hasMany(models.application, {foreignKey: foreignKeys.application});
-        Group.hasMany(models.lesson, {foreignKey: foreignKeys.lesson});
+        Group.hasMany(models.lesson, {
+            foreignKey: foreignKeys.lesson,
+            onDelete: 'cascade',
+            onUpdate: 'cascade',
+            hooks: true
+        });
         Group.belongsTo(models.course, {foreignKey: foreignKeys.course});
         Group.belongsTo(models.city, {foreignKey: foreignKeys.city});
     };

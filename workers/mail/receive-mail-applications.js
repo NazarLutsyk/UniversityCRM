@@ -25,6 +25,7 @@ function openInbox(cb) {
 }
 
 function performMessage(stream, info) {
+    // JSON regular \{(?:[^{}]|(?R))*\}}
     let buffer = '';
     stream.on('data', function (chunk) {
         buffer += chunk.toString('utf8');
@@ -32,11 +33,17 @@ function performMessage(stream, info) {
     stream.once('end', function () {
         simpleParser(buffer)
             .then(parsed => {
+                    let jsonApp = parsed
+                        .html
+                        .replace(/&quot;/g, '\"')
+                        .replace(/(<a.*?>|<\/a>)/gmi, '')
+                        .match(/\{(?:[^{}]|(R?))*\}/igm)[0];
                     globalResolve(
                         {
                             from: parsed.from.value[0].address,
                             to: parsed.to.value[0].address,
-                            subject: parsed.subject
+                            subject: parsed.subject,
+                            json: jsonApp ? JSON.parse(jsonApp) : null
                         }
                     );
                 }
@@ -59,7 +66,7 @@ imap.once('ready', function () {
                 const since = `${MONTHS[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;
 
                 imap.search(['UNSEEN', ['FROM', 'nlutsik3@gmail.com'], ['SINCE', since]], function (err, results) {
-                    if (err) globalReject(err)
+                    if (err) globalReject(err);
 
                     let imapQuery = imap.fetch(results, {bodies: '', markSeen: true});
 

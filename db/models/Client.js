@@ -34,9 +34,23 @@ module.exports = (sequelize, DataTypes) => {
     }, {});
 
     Client.associate = function (models) {
-        Client.hasMany(models.task, {foreignKey: foreignKeys.task,});
-        Client.hasMany(models.application, {foreignKey: foreignKeys.application});
-        Client.hasMany(models.comment, {foreignKey: foreignKeys.comment});
+        Client.hasMany(models.task, {
+            foreignKey: foreignKeys.task,
+            onDelete: 'cascade',
+            onUpdate: 'cascade',
+            hooks: true
+        });
+        Client.hasMany(models.application, {
+            foreignKey: foreignKeys.application,
+            onDelete: 'CASCADE',
+            onUpdate: 'CASCADE',
+        });
+        Client.hasMany(models.comment, {
+            foreignKey: foreignKeys.comment,
+            onDelete: 'cascade',
+            onUpdate: 'cascade',
+            hooks: true
+        });
     };
 
     Client.tableName = tableName;
