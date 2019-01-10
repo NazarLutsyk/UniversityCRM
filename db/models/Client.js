@@ -42,8 +42,9 @@ module.exports = (sequelize, DataTypes) => {
         });
         Client.hasMany(models.application, {
             foreignKey: foreignKeys.application,
-            onDelete: 'CASCADE',
-            onUpdate: 'CASCADE',
+            onDelete: 'cascade',
+            onUpdate: 'cascade',
+            hooks: true
         });
         Client.hasMany(models.comment, {
             foreignKey: foreignKeys.comment,

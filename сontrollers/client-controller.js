@@ -24,6 +24,7 @@ controller.getById = async function (req, res, next) {
 };
 controller.getAll = async function (req, res, next) {
     try {
+        let freebies = [];
         let query = req.query;
 
         if (_.has(query.q, 'name.$like')) {
@@ -38,6 +39,43 @@ controller.getAll = async function (req, res, next) {
         if (_.has(query.q, 'email.$like')) {
             query.q.email.$like = `%${query.q.email.$like}%`
         }
+        if (_.has(query.q, 'freebie')) {
+            const rawResult = await db.sequelize.query(
+                    `select clientId, SUM(fullPrice) as sum
+                     from application
+                     group by clientId
+                     having sum <= 0`,
+                {raw: true});
+            freebies = rawResult[0].map(r => r.clientId);
+            if (freebies) {
+                query.q.id = {$in: freebies};
+            }
+            delete query.q.freebie;
+        }
+
+
+        let newIncludes = [];
+        if (query.include.length > 0) {
+            for (const includeTableName of query.include) {
+                let include = null;
+                let includeWhere = {};
+                let required = false;
+                if (_.has(query.q, 'application.groupId') && includeTableName === 'application') {
+                    includeWhere = {
+                        groupId: query.q.application.groupId
+                    };
+                    required = true;
+                }
+                include = {
+                    model: db[includeTableName],
+                    required,
+                    where: includeWhere
+                };
+                newIncludes.push(include);
+                delete query.q[includeTableName];
+            }
+        }
+        query.include = newIncludes;
 
         let models = await db.client.findAll(
             {
@@ -45,7 +83,8 @@ controller.getAll = async function (req, res, next) {
                 attributes: query.attributes,
                 order: query.sort,
                 offset: query.offset,
-                limit: query.limit
+                limit: query.limit,
+                include: query.include,
             },
         );
         let count = await db.client.count(

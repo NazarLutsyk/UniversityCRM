@@ -25,7 +25,13 @@ module.exports = (sequelize, DataTypes) => {
     }, {});
 
     Application.associate = function (models) {
-        Application.belongsTo(models.client, {foreignKey: foreignKeys.client});
+        Application.belongsTo(models.client, {
+                foreignKey: foreignKeys.client,
+                onDelete: 'cascade',
+                onUpdate: 'cascade',
+                hooks: true
+            }
+        );
         Application.belongsTo(models.course, {foreignKey: foreignKeys.course});
         Application.belongsTo(models.group, {foreignKey: foreignKeys.group});
         Application.belongsTo(models.city, {foreignKey: foreignKeys.city});
@@ -49,11 +55,13 @@ module.exports = (sequelize, DataTypes) => {
         });
         Application.belongsToMany(models.lesson, {
             through: models.journal,
-            foreignKey: foreignKeys.journal
+            foreignKey: foreignKeys.journal,
+            hooks: true
         });
         Application.belongsToMany(models.source, {
             through: models.source_application,
-            foreignKey: foreignKeys.source
+            foreignKey: foreignKeys.source,
+            hooks: true
         });
     };
 
