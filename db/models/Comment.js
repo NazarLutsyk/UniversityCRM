@@ -7,7 +7,7 @@ const foreignKeys = {
 module.exports = (sequelize, DataTypes) => {
     const Comment = sequelize.define(tableName, {
         text: DataTypes.STRING,
-        date: DataTypes.DATE
+        date: DataTypes.DATEONLY
     }, {});
 
     Comment.associate = function (models) {

@@ -6,7 +6,7 @@ const foreignKeys = {
 
 module.exports = (sequelize, DataTypes) => {
     const Contract = sequelize.define(tableName,{
-        date: DataTypes.DATE,
+        date: DataTypes.DATEONLY,
         file: DataTypes.STRING
     },{});
 

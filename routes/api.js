@@ -22,6 +22,7 @@ let ManagerRouter = require('./manager-router');
 let EapplicationRouter = require('./eapplication-router');
 let RoleRouter = require('./role-router');
 let AuthRouter = require('./auth-router');
+let StatisticRouter = require('./statistic-router');
 
 router.use('/applications', authMiddleware.isLoggedIn, ApplicationRouter);
 router.use('/audiocalls', authMiddleware.isLoggedIn, AudiocallRouter);
@@ -39,5 +40,6 @@ router.use('/eapplications', authMiddleware.isLoggedIn, EapplicationRouter);
 router.use('/managers', authMiddleware.isLoggedIn, guard.roles(ROLES.BOSS_ROLE), ManagerRouter);
 router.use('/roles', RoleRouter);
 router.use('/auth', AuthRouter);
+router.use('/statistic', StatisticRouter);
 
 module.exports = router;

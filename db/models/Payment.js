@@ -7,7 +7,7 @@ const foreignKeys = {
 module.exports = (sequelize, DataTypes) => {
     const Payment = sequelize.define(tableName, {
         number: DataTypes.STRING,
-        date: DataTypes.DATE,
+        date: DataTypes.DATEONLY,
         amount: DataTypes.INTEGER,
         file: DataTypes.STRING,
     }, {});

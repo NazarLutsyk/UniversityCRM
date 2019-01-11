@@ -1,0 +1,114 @@
+let db = require('../db/models');
+let ControllerError = require('../errors/ControllerError');
+
+let controller = {};
+
+controller.cityManager = async function (req, res, next) {
+    try {
+        let stat = await db.sequelize.query(
+                `
+              select c.name as city, COUNT(c.id) as count
+              from manager
+                     join city_manager cm on manager.id = cm.managerId
+                     join city c on cm.cityId = c.id
+              group by cityId;
+            `
+        );
+        res.json(stat[0]);
+    } catch (e) {
+        next(new ControllerError(e.message, 400, 'Statistic controller'));
+    }
+};
+
+controller.cityApplication = async function (req, res, next) {
+    try {
+        const startDate = req.query.q && req.query.q.startDate ? req.query.q.startDate : '1970-01-01';
+        const endDate = req.query.q && req.query.q.endDate ? req.query.q.endDate : '3000-12-12';
+        let stat = await db.sequelize.query(
+                `
+              select c.name as city, COUNT(a.id) as count
+              from application a
+                     join city c
+                          on a.cityId = c.id
+              where a.createdAt >= :startDate
+                and a.createdAt <= :endDate
+              group by cityId;
+            `,
+            {replacements: {startDate, endDate}}
+        );
+        res.json(stat[0]);
+    } catch (e) {
+        next(new ControllerError(e.message, 400, 'Statistic controller'));
+    }
+};
+
+controller.sourceApplication = async function (req, res, next) {
+    try {
+        const startDate = req.query.q && req.query.q.startDate ? req.query.q.startDate : '1970-01-01';
+        const endDate = req.query.q && req.query.q.endDate ? req.query.q.endDate : '3000-12-12';
+        let stat = await db.sequelize.query(
+                `
+              select s.name as source, COUNT(a.id) as count
+              from application a
+                     join source_application sa on a.id = sa.applicationId
+                     join source s on sa.sourceId = s.id
+              where a.createdAt >= :startDate
+                and a.createdAt <= :endDate
+              group by sourceId
+            `,
+            {replacements: {startDate, endDate}}
+        );
+        res.json(stat[0]);
+    } catch (e) {
+        next(new ControllerError(e.message, 400, 'Statistic controller'));
+    }
+};
+
+controller.courseApplication = async function (req, res, next) {
+    try {
+        const startDate = req.query.q && req.query.q.startDate ? req.query.q.startDate : '1970-01-01';
+        const endDate = req.query.q && req.query.q.endDate ? req.query.q.endDate : '3000-12-12';
+        let stat = await db.sequelize.query(
+                `
+              select c.name as course, COUNT(a.id) as count
+              from application a
+                     join course c on a.courseId = c.id
+              where a.createdAt >= :startDate
+                and a.createdAt <= :endDate
+              group by courseId
+            `,
+            {replacements: {startDate, endDate}}
+        );
+        res.json(stat[0]);
+    } catch (e) {
+        next(new ControllerError(e.message, 400, 'Statistic controller'));
+    }
+};
+
+controller.groupJournal = async function (req, res, next) {
+    try {
+        const groupId = req.query.q && req.query.q.groupId ? req.query.q.groupId : '';
+        if (groupId) {
+            let stat = await db.sequelize.query(
+                    `
+                  select CONCAT(c.name, ' ', c.surname) as client, COUNT(j.applicationId) as count
+                  from \`group\`
+                         join lesson l on \`group\`.id = l.groupId
+                         join journal j on l.id = j.lessonId
+                         join application a on j.applicationId = a.id
+                         join client c on a.clientId = c.id
+                  where \`group\`.id = :groupId
+                  group by j.applicationId;
+                `,
+                {replacements: {groupId}}
+            );
+            res.json(stat[0]);
+        } else {
+            throw new Error('groupId is required');
+        }
+    } catch (e) {
+        next(new ControllerError(e.message, 400, 'Statistic controller'));
+    }
+};
+
+module.exports = controller;

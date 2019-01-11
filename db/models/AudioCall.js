@@ -6,7 +6,7 @@ const foreignKeys = {
 
 module.exports = (sequelize, DataTypes) => {
     const AudioCall = sequelize.define(tableName, {
-        date: DataTypes.DATE,
+        date: DataTypes.DATEONLY,
         comment: DataTypes.STRING,
         file: DataTypes.STRING,
     }, {});

@@ -7,7 +7,7 @@ const foreignKeys = {
 module.exports = (sequelize, DataTypes) => {
     const Task = sequelize.define(tableName, {
         message: DataTypes.STRING,
-        date: DataTypes.DATE
+        date: DataTypes.DATEONLY
     }, {});
 
     Task.associate = function (models) {
