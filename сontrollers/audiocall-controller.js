@@ -1,5 +1,11 @@
+let path = require('path');
 let db = require('../db/models');
 let ControllerError = require('../errors/ControllerError');
+
+const audioCallsPath = path.join(__dirname, '../public', 'upload', 'audiocalls');
+let upload = require('../middleware/file-midlleware')(audioCallsPath);
+
+upload = upload.array('files');
 
 let controller = {};
 
@@ -66,6 +72,37 @@ controller.remove = async function (req, res, next) {
     } catch (e) {
         next(new ControllerError(e.message, 400, 'AudioCall controller'))
     }
+};
+
+controller.upload = async function(req, res, next){
+    let audio_callId = req.params.id;
+    upload(req, res, async function (err) {
+        if (err) {
+            return next(new ControllerError(err.message, 400, 'AudioCall controller'));
+        } else {
+            try {
+                let images = [];
+                if (req.files && req.files.length > 0) {
+                    for (let file in req.files) {
+                        try {
+                            let image = await db.file.create({
+                                path: path.join('audiocalls',req.files[file].filename),
+                                audio_callId
+                            });
+                            images.push(image);
+                        } catch (e) {
+                            e.status = 400;
+                            return next(e);
+                        }
+                    }
+                }
+                return res.json(images);
+            } catch (e) {
+                return next(new ControllerError(err.message, 400, 'AudioCall controller'));
+            }
+        }
+    });
+
 };
 
 module.exports = controller;

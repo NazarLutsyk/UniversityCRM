@@ -2,6 +2,7 @@ const tableName = 'payment';
 
 const foreignKeys = {
     application: 'applicationId',
+    file: 'paymentId',
 };
 
 module.exports = (sequelize, DataTypes) => {
@@ -9,11 +10,11 @@ module.exports = (sequelize, DataTypes) => {
         number: DataTypes.STRING,
         date: DataTypes.DATEONLY,
         amount: DataTypes.INTEGER,
-        file: DataTypes.STRING,
     }, {});
 
     Payment.associate = function (models) {
         Payment.belongsTo(models.application, {foreignKey: foreignKeys.application});
+        Payment.hasMany(models.file, {foreignKey: foreignKeys.file});
     };
 
     Payment.tableName = tableName;

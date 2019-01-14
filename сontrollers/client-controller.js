@@ -1,7 +1,14 @@
+let path = require('path');
+
 let _ = require('lodash');
 
 let db = require('../db/models');
 let ControllerError = require('../errors/ControllerError');
+
+const passportPath = path.join(__dirname, '../public', 'upload', 'passports');
+let upload = require('../middleware/file-midlleware')(passportPath);
+
+upload = upload.array('passports');
 
 let controller = {};
 
@@ -123,6 +130,7 @@ controller.update = async function (req, res, next) {
         next(new ControllerError(e.message, 400, 'Client controller'))
     }
 };
+
 controller.remove = async function (req, res, next) {
     try {
         await db.client.destroy({where: {id: req.params.id}, limit: 1});
@@ -130,6 +138,37 @@ controller.remove = async function (req, res, next) {
     } catch (e) {
         next(new ControllerError(e.message, 400, 'Client controller'))
     }
+};
+
+controller.uploadPassport = async function (req, res, next) {
+    let clientId = req.params.id;
+    upload(req, res, async function (err) {
+        if (err) {
+            return next(new ControllerError(err.message, 400, 'Client controller'));
+        } else {
+            try {
+                let images = [];
+                if (req.files && req.files.length > 0) {
+                    for (let file in req.files) {
+                        try {
+                            let image = await db.file.create({
+                                path: path.join('passports', req.files[file].filename),
+                                clientId
+                            });
+                            images.push(image);
+                        } catch (e) {
+                            e.status = 400;
+                            return next(e);
+                        }
+                    }
+                }
+                return res.json(images);
+            } catch (e) {
+                console.log(e);
+                return next(new ControllerError(err.message, 400, 'Client controller'));
+            }
+        }
+    });
 };
 
 module.exports = controller;

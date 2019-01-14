@@ -1,3 +1,3 @@
 let db = require('../models');
 
-db.sequelize.sync({force: true, hooks: true});
+db.sequelize.sync({force: false, hooks: true});

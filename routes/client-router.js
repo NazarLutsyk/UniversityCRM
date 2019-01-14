@@ -12,4 +12,6 @@ router.route('/:id')
     .put(guard.roles(ROLES.BOSS_ROLE, ROLES.MANAGER_ROLE), controllers.client.update)
     .delete(guard.roles(ROLES.BOSS_ROLE, ROLES.MANAGER_ROLE), controllers.client.remove);
 
+router.post('/:id/passport/upload', controllers.client.uploadPassport);
+
 module.exports = router;

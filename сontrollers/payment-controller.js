@@ -3,6 +3,12 @@ let _ = require('lodash');
 let db = require('../db/models');
 let ControllerError = require('../errors/ControllerError');
 
+let path = require('path');
+const paymentsPath = path.join(__dirname, '../public', 'upload', 'payments');
+let upload = require('../middleware/file-midlleware')(paymentsPath);
+
+upload = upload.array('files');
+
 let controller = {};
 
 controller.getById = async function (req, res, next) {
@@ -103,6 +109,37 @@ controller.remove = async function (req, res, next) {
     } catch (e) {
         next(new ControllerError(e.message, 400, 'Payment controller'))
     }
+};
+
+controller.upload = async function (req, res, next) {
+    let paymentId = req.params.id;
+    upload(req, res, async function (err) {
+        if (err) {
+            return next(new ControllerError(err.message, 400, 'Payment controller'));
+        } else {
+            try {
+                let paymentFiles = [];
+                if (req.files && req.files.length > 0) {
+                    for (let file in req.files) {
+                        try {
+                            console.log('ok');
+                            let paymentFile = await db.file.create({
+                                path: path.join('payments', req.files[file].filename),
+                                paymentId
+                            });
+                            paymentFiles.push(paymentFile);
+                        } catch (e) {
+                            e.status = 400;
+                            return next(e);
+                        }
+                    }
+                }
+                return res.json(paymentFiles);
+            } catch (e) {
+                return next(new ControllerError(err.message, 400, 'Payment controller'));
+            }
+        }
+    });
 };
 
 module.exports = controller;

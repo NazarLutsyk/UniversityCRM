@@ -6,6 +6,7 @@ const foreignKeys = {
     task: 'clientId',
     application: 'clientId',
     comment: 'clientId',
+    file: 'clientId',
 };
 
 module.exports = (sequelize, DataTypes) => {
@@ -29,8 +30,7 @@ module.exports = (sequelize, DataTypes) => {
         },
         email: {
             type: DataTypes.STRING
-        },
-        passport: DataTypes.STRING
+        }
     }, {});
 
     Client.associate = function (models) {
@@ -52,6 +52,7 @@ module.exports = (sequelize, DataTypes) => {
             onUpdate: 'cascade',
             hooks: true
         });
+        Client.hasMany(models.file, {foreignKey: foreignKeys.file});
     };
 
     Client.tableName = tableName;

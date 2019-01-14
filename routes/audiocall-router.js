@@ -12,4 +12,6 @@ router.route('/:id')
     .put(controllers.audiocall.update)
     .delete(controllers.audiocall.remove);
 
+router.post('/:id/upload', controllers.audiocall.upload);
+
 module.exports = router;

@@ -1,6 +1,12 @@
 let db = require('../db/models');
 let ControllerError = require('../errors/ControllerError');
 
+let path = require('path');
+const contractsPath = path.join(__dirname, '../public', 'upload', 'contracts');
+let upload = require('../middleware/file-midlleware')(contractsPath);
+
+upload = upload.array('files');
+
 let controller = {};
 
 controller.getById = async function (req, res, next) {
@@ -40,8 +46,38 @@ controller.getAll = async function (req, res, next) {
 };
 controller.create = async function (req, res, next) {
     try {
-        let model = await db.contract.create(req.body);
-        res.status(201).json(model);
+        let applicationId = req.params.applicationId;
+        upload(req, res, async function (err) {
+            if (err) {
+                return next(new ControllerError(err.message, 400, 'Contract controller'));
+            } else {
+                try {
+                    let contractFiles = [];
+                    if (req.files && req.files.length > 0) {
+                        for (let file in req.files) {
+                            try {
+                                let contract = await db.contract.create({
+                                    date: new Date(),
+                                    applicationId
+                                });
+                                let contractFile = await db.file.create({
+                                    path: path.join('contracts', req.files[file].filename),
+                                    contractId: contract.id
+                                });
+                                contractFiles.push(contractFile);
+                            } catch (e) {
+                                e.status = 400;
+                                return next(e);
+                            }
+                        }
+                    }
+                    return res.json(contractFiles);
+                } catch (e) {
+                    return next(new ControllerError(err.message, 400, 'Contract controller'));
+                }
+            }
+        });
+
     } catch (e) {
         next(new ControllerError(e.message, 400, 'Contract controller'));
     }

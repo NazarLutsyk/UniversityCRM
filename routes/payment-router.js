@@ -11,4 +11,6 @@ router.route('/:id')
     .get(guard.roles(ROLES.BOSS_ROLE, ROLES.MANAGER_ROLE), controllers.payment.getById)
     .delete(guard.roles(ROLES.BOSS_ROLE, ROLES.MANAGER_ROLE), controllers.payment.remove);
 
+router.post('/:id/upload', controllers.payment.upload);
+
 module.exports = router;
