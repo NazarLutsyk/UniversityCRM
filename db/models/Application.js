@@ -6,7 +6,6 @@ const foreignKeys = {
     course: 'courseId',
     group: 'groupId',
     contract: 'applicationId',
-    audioCall: 'applicationId',
     payment: 'applicationId',
     journal: 'applicationId',
     city: 'cityId',
@@ -37,12 +36,6 @@ module.exports = (sequelize, DataTypes) => {
         Application.belongsTo(models.city, {foreignKey: foreignKeys.city});
         Application.hasOne(models.contract, {
             foreignKey: foreignKeys.contract,
-            onDelete: 'cascade',
-            onUpdate: 'cascade',
-            hooks: true
-        });
-        Application.hasMany(models.audio_call, {
-            foreignKey: foreignKeys.audioCall,
             onDelete: 'cascade',
             onUpdate: 'cascade',
             hooks: true

@@ -1,3 +1,5 @@
+let _ = require('lodash');
+
 let path = require('path');
 let db = require('../db/models');
 let ControllerError = require('../errors/ControllerError');
@@ -18,7 +20,8 @@ controller.getById = async function (req, res, next) {
                 attributes: query.attributes,
                 order: query.sort,
                 offset: query.offset,
-                limit: query.limit
+                limit: query.limit,
+                include: query.include
             },
         );
         res.json(models);
@@ -29,16 +32,66 @@ controller.getById = async function (req, res, next) {
 controller.getAll = async function (req, res, next) {
     try {
         let query = req.query;
+
+        if (_.has(query.q, 'comment.$like')) {
+            query.q.comment.$like = `%${query.q.comment['$like']}%`
+        }
+
+        let newIncludes = [];
+        if (query.include.length > 0) {
+            for (const includeTableName of query.include) {
+                let include = null;
+                let includeWhere = {};
+                let required = false;
+                if (_.has(query.q, 'clientFullname') && includeTableName === 'client') {
+                    includeWhere = {
+                        $or: [
+                            {
+                                name: {
+                                    $like: `%${query.q.clientFullname}%`
+                                }
+                            },
+                            {
+                                surname: {
+                                    $like: `%${query.q.clientFullname}%`
+                                }
+                            }
+                        ]
+                    };
+                    required = true;
+                }
+                include = {
+                    model: db[includeTableName],
+                    required,
+                    where: includeWhere
+                };
+                newIncludes.push(include);
+                delete query.q[includeTableName];
+            }
+        }
+        query.include = newIncludes;
+
         let models = await db.audio_call.findAll(
             {
                 where: query.q,
                 attributes: query.attributes,
                 order: query.sort,
                 offset: query.offset,
-                limit: query.limit
+                limit: query.limit,
+                include: query.include
             },
         );
-        res.json(models);
+        let count = await db.audio_call.count(
+            {
+                where: query.q,
+                include: query.include,
+            }
+        );
+
+        res.json({
+            models,
+            count
+        });
     } catch (e) {
         next(new ControllerError(e.message, 400, 'AudioCall controller'));
     }
@@ -74,7 +127,7 @@ controller.remove = async function (req, res, next) {
     }
 };
 
-controller.upload = async function(req, res, next){
+controller.upload = async function (req, res, next) {
     let audio_callId = req.params.id;
     upload(req, res, async function (err) {
         if (err) {
@@ -86,7 +139,7 @@ controller.upload = async function(req, res, next){
                     for (let file in req.files) {
                         try {
                             let image = await db.file.create({
-                                path: path.join('audiocalls',req.files[file].filename),
+                                path: path.join('audiocalls', req.files[file].filename),
                                 audio_callId
                             });
                             images.push(image);

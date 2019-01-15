@@ -12,7 +12,12 @@ module.exports = (sequelize, DataTypes) => {
 
     Contract.associate = function (models){
         Contract.belongsTo(models.application, {foreignKey: foreignKeys.application});
-        Contract.hasMany(models.file, {foreignKey: foreignKeys.file});
+        Contract.hasMany(models.file, {
+            foreignKey: foreignKeys.file,
+            onDelete: 'cascade',
+            onUpdate: 'cascade',
+            hooks: true
+        });
     };
 
     Contract.tableName = tableName;

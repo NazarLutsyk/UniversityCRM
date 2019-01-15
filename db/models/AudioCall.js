@@ -1,7 +1,7 @@
 const tableName = 'audio_call';
 
 const foreignKeys = {
-    application: 'applicationId',
+    application: 'clientId',
     file: 'audio_callId'
 };
 
@@ -12,8 +12,18 @@ module.exports = (sequelize, DataTypes) => {
     }, {});
 
     AudioCall.associate = function (models) {
-        AudioCall.belongsTo(models.application, {foreignKey: foreignKeys.application});
-        AudioCall.hasMany(models.file, {foreignKey: foreignKeys.file});
+        AudioCall.belongsTo(models.client, {
+            foreignKey: foreignKeys.client,
+            onDelete: 'cascade',
+            onUpdate: 'cascade',
+            hooks: true
+        });
+        AudioCall.hasMany(models.file, {
+            foreignKey: foreignKeys.file,
+            onDelete: 'cascade',
+            onUpdate: 'cascade',
+            hooks: true
+        });
     };
 
     AudioCall.tableName = tableName;

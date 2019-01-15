@@ -7,6 +7,7 @@ const foreignKeys = {
     application: 'clientId',
     comment: 'clientId',
     file: 'clientId',
+    audioCall: 'clientId'
 };
 
 module.exports = (sequelize, DataTypes) => {
@@ -52,7 +53,18 @@ module.exports = (sequelize, DataTypes) => {
             onUpdate: 'cascade',
             hooks: true
         });
-        Client.hasMany(models.file, {foreignKey: foreignKeys.file});
+        Client.hasMany(models.audio_call, {
+            foreignKey: foreignKeys.audioCall,
+            onDelete: 'cascade',
+            onUpdate: 'cascade',
+            hooks: true
+        });
+        Client.hasMany(models.file, {
+            foreignKey: foreignKeys.file,
+            onDelete: 'cascade',
+            onUpdate: 'cascade',
+            hooks: true
+        });
     };
 
     Client.tableName = tableName;
