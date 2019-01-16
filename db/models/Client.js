@@ -69,7 +69,7 @@ module.exports = (sequelize, DataTypes) => {
 
     Client.tableName = tableName;
 
-    Client.supersave = async function (client){
+    Client.supersave = async function (client) {
         ['name', 'surname', 'phone', 'email'].forEach((value) => {
             if (client[value]) {
                 client[value] = client[value].trim();

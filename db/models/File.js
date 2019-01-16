@@ -1,3 +1,6 @@
+let fs = require('fs');
+let path = require('path');
+
 const tableName = 'file';
 
 const foreignKeys = {
@@ -11,7 +14,21 @@ const foreignKeys = {
 module.exports = (sequelize, DataTypes) => {
     const File = sequelize.define(tableName, {
         path: DataTypes.STRING
-    }, {});
+    }, {
+        hooks: {
+            beforeDestroy: function (file) {
+                return new Promise((resolve, reject) => {
+                    fs.unlink(path.join(__dirname, '../../public', 'upload', file.path), (err) => {
+                        if (err) {
+                            console.log(err);
+                            reject(err);
+                        }
+                        resolve();
+                    });
+                })
+            }
+        }
+    });
 
     File.associate = function (models) {
         File.belongsTo(models.client, {
@@ -24,29 +41,17 @@ module.exports = (sequelize, DataTypes) => {
                 hooks: true
             }
         );
-        File.belongsTo(models.payment, {
-                foreignKey: foreignKeys.payment,
-                hooks: true
-            }
-        );
         File.belongsTo(models.contract, {
                 foreignKey: foreignKeys.contract,
                 hooks: true
             }
         );
+        File.belongsTo(models.payment, {
+                foreignKey: foreignKeys.payment,
+                hooks: true
+            }
+        );
     };
-
-    File.addHook('beforeDestroy', (file, options) => {
-        console.log('beforeDestroy');
-        console.log(file);
-        console.log(options);
-    });
-
-    File.addHook('beforeBulkDestroy', (file, options) => {
-        console.log('beforeBulkDestroy');
-        console.log(file);
-        console.log(options);
-    });
 
     File.tableName = tableName;
 

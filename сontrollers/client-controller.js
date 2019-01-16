@@ -133,7 +133,8 @@ controller.update = async function (req, res, next) {
 
 controller.remove = async function (req, res, next) {
     try {
-        await db.client.destroy({where: {id: req.params.id}, limit: 1});
+        let toDelete = await db.client.findOne({where: {id: req.params.id}});
+        await toDelete.destroy();
         res.sendStatus(204);
     } catch (e) {
         next(new ControllerError(e.message, 400, 'Client controller'))

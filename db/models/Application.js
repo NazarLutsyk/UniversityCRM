@@ -25,10 +25,7 @@ module.exports = (sequelize, DataTypes) => {
 
     Application.associate = function (models) {
         Application.belongsTo(models.client, {
-                foreignKey: foreignKeys.client,
-                onDelete: 'cascade',
-                onUpdate: 'cascade',
-                hooks: true
+                foreignKey: foreignKeys.client
             }
         );
         Application.belongsTo(models.course, {foreignKey: foreignKeys.course});

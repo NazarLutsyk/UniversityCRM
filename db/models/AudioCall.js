@@ -13,10 +13,7 @@ module.exports = (sequelize, DataTypes) => {
 
     AudioCall.associate = function (models) {
         AudioCall.belongsTo(models.client, {
-            foreignKey: foreignKeys.client,
-            onDelete: 'cascade',
-            onUpdate: 'cascade',
-            hooks: true
+            foreignKey: foreignKeys.client
         });
         AudioCall.hasMany(models.file, {
             foreignKey: foreignKeys.file,

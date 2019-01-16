@@ -54,12 +54,12 @@ controller.create = async function (req, res, next) {
                 try {
                     let contractFiles = [];
                     if (req.files && req.files.length > 0) {
+                        let contract = await db.contract.create({
+                            date: new Date(),
+                            applicationId
+                        });
                         for (let file in req.files) {
                             try {
-                                let contract = await db.contract.create({
-                                    date: new Date(),
-                                    applicationId
-                                });
                                 let contractFile = await db.file.create({
                                     path: path.join('contracts', req.files[file].filename),
                                     contractId: contract.id
@@ -97,7 +97,8 @@ controller.update = async function (req, res, next) {
 };
 controller.remove = async function (req, res, next) {
     try {
-        await db.contract.destroy({where: {id: req.params.id}, limit: 1});
+        let toDelete = await db.contract.findOne({where: {id: req.params.id}});
+        await toDelete.destroy();
         res.sendStatus(204);
     } catch (e) {
         next(new ControllerError(e.message, 400, 'Contract controller'))
