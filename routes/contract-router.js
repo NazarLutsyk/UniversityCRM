@@ -13,4 +13,6 @@ router.route('/:id')
 
 router.post('/:applicationId', controllers.contract.create);
 
+router.post('/:contractId/upload', controllers.contract.upload);
+
 module.exports = router;

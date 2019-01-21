@@ -105,4 +105,34 @@ controller.remove = async function (req, res, next) {
     }
 };
 
+controller.upload = async function (req, res, next) {
+    let contractId = req.params.id;
+    upload(req, res, async function (err) {
+        if (err) {
+            return next(new ControllerError(err.message, 400, 'Contract controller'));
+        } else {
+            try {
+                let contractFiles = [];
+                if (req.files && req.files.length > 0) {
+                    for (let file in req.files) {
+                        try {
+                            let contractFile = await db.file.create({
+                                path: path.join('contracts', req.files[file].filename),
+                                contractId
+                            });
+                            contractFiles.push(contractFile);
+                        } catch (e) {
+                            e.status = 400;
+                            return next(e);
+                        }
+                    }
+                }
+                return res.json(contractFiles);
+            } catch (e) {
+                return next(new ControllerError(err.message, 400, 'Contract controller'));
+            }
+        }
+    });
+};
+
 module.exports = controller;

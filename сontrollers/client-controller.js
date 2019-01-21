@@ -21,7 +21,8 @@ controller.getById = async function (req, res, next) {
                 attributes: query.attributes,
                 order: query.sort,
                 offset: query.offset,
-                limit: query.limit
+                limit: query.limit,
+                include: query.include,
             },
         );
         res.json(models);

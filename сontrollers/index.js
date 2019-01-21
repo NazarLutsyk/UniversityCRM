@@ -17,5 +17,6 @@ controllers.eapplication = require('./eapplication-controller');
 controllers.role = require('./role-controller');
 controllers.auth = require('./auth-controller');
 controllers.statistic = require('./statistic-controller');
+controllers.file = require('./file-controller');
 
 module.exports = controllers;

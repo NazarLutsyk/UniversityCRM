@@ -122,7 +122,6 @@ controller.upload = async function (req, res, next) {
                 if (req.files && req.files.length > 0) {
                     for (let file in req.files) {
                         try {
-                            console.log('ok');
                             let paymentFile = await db.file.create({
                                 path: path.join('payments', req.files[file].filename),
                                 paymentId

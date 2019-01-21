@@ -8,6 +8,20 @@ let controller = {};
 controller.getById = async function (req, res, next) {
     try {
         let query = req.query;
+        let newIncludes = [];
+        if (query.include.length > 0 && query.include.indexOf('contract') >= -1) {
+            let indexToDelete = query.include.findIndex(i => i === 'contract');
+            query.include.splice(indexToDelete, 1);
+            newIncludes = [...query.include];
+            newIncludes.push(
+                {
+                    model: db.contract,
+                    include: [
+                        {model : db.file}
+                    ]
+                }
+            )
+        }
         let models = await db.application.findById(
             req.params.id,
             {
@@ -15,11 +29,12 @@ controller.getById = async function (req, res, next) {
                 order: query.sort,
                 offset: query.offset,
                 limit: query.limit,
-                include: query.include
+                include: newIncludes.length > 0 ? newIncludes : query.include
             },
         );
         res.json(models);
     } catch (e) {
+        console.log(e);
         next(new ControllerError(e.message, 400, 'Application controller'));
     }
 };
@@ -32,6 +47,7 @@ controller.getAll = async function (req, res, next) {
             for (const includeTableName of query.include) {
                 let include = null;
                 let includeWhere = {};
+                let innerInclude = [];
                 let required = false;
                 if (_.has(query.q, 'client.name') && includeTableName === 'client') {
                     includeWhere = {
@@ -77,10 +93,16 @@ controller.getAll = async function (req, res, next) {
                     };
                     required = true;
                 }
+                if (includeTableName === 'contract') {
+                    innerInclude.push({
+                        model: db.file
+                    });
+                }
                 include = {
                     model: db[includeTableName],
                     required,
-                    where: includeWhere
+                    where: includeWhere,
+                    include: innerInclude
                 };
                 newIncludes.push(include);
                 delete query.q[includeTableName];
