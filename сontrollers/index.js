@@ -18,5 +18,6 @@ controllers.role = require('./role-controller');
 controllers.auth = require('./auth-controller');
 controllers.statistic = require('./statistic-controller');
 controllers.file = require('./file-controller');
+controllers.sending = require('./sending-controller');
 
 module.exports = controllers;

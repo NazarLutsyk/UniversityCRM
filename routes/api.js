@@ -24,6 +24,7 @@ let RoleRouter = require('./role-router');
 let AuthRouter = require('./auth-router');
 let StatisticRouter = require('./statistic-router');
 let FileRouter = require('./file-router');
+let SendingRouter = require('./sending-router');
 
 router.use('/applications', authMiddleware.isLoggedIn, ApplicationRouter);
 router.use('/audiocalls', authMiddleware.isLoggedIn, AudiocallRouter);
@@ -43,5 +44,6 @@ router.use('/roles', RoleRouter);
 router.use('/auth', AuthRouter);
 router.use('/statistic', authMiddleware.isLoggedIn, StatisticRouter);
 router.use('/files', authMiddleware.isLoggedIn, guard.roles(ROLES.BOSS_ROLE, ROLES.MANAGER_ROLE), FileRouter);
+router.use('/sending', authMiddleware.isLoggedIn, guard.roles(ROLES.BOSS_ROLE, ROLES.MANAGER_ROLE), SendingRouter);
 
 module.exports = router;
