@@ -7,12 +7,21 @@ let cors = require('cors');
 let session = require('express-session');
 let helmet = require('helmet');
 let guard = require('node-auth-guard');
+let db = require('./db/models');
+let SequelizeStore = require('connect-session-sequelize')(session.Store);
 
 require('./config/passport');
 let passport = require('passport');
 
 let queryParser = require('./helpers/query-parser');
 let apiRouter = require('./routes/api');
+
+let sessionStore = new SequelizeStore({
+    db: db.sequelize,
+    checkExpirationInterval: 15 * 60 * 1000,
+    expiration: 7 * 24 * 60 * 60 * 1000
+});
+sessionStore.sync();
 
 let app = express();
 
@@ -26,7 +35,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({
     secret: 'KHkhSdlasd54sdaSdad44',
     resave: false,
-    saveUninitialized: false
+    saveUninitialized: false,
+    store: sessionStore
 }));
 app.use(queryParser());
 app.use(passport.initialize());
