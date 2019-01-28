@@ -14,10 +14,19 @@ module.exports = (sequelize, DataTypes) => {
     }, {});
 
     Manager.associate = function (models) {
-        Manager.belongsToMany(models.city, {through: models.city_manager,foreignKey: foreignKeys.city});
+        Manager.belongsToMany(models.city, {through: models.city_manager, foreignKey: foreignKeys.city});
     };
 
     Manager.tableName = tableName;
+
+    Manager.notUpdatableFields = [];
+    Manager.requiredFileds = [
+        'login',
+        'password',
+        'name',
+        'surname',
+        'role'
+    ];
 
     return Manager;
 };

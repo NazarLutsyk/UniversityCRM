@@ -2,6 +2,7 @@ let _ = require('lodash');
 
 let db = require('../db/models');
 let ControllerError = require('../errors/ControllerError');
+let ObjectHelper = require('../helpers/object-helper');
 
 let controller = {};
 
@@ -56,6 +57,9 @@ controller.getAll = async function (req, res, next) {
 };
 controller.create = async function (req, res, next) {
     try {
+        if (!ObjectHelper.has(req.body, db.source.requiredFileds)) {
+            return next(new ControllerError('Missed required fields! ' + db.source.requiredFileds, 400, 'Source controller'));
+        }
         let model = await db.source.create(req.body);
         res.status(201).json(model);
     } catch (e) {
@@ -64,6 +68,7 @@ controller.create = async function (req, res, next) {
 };
 controller.update = async function (req, res, next) {
     try {
+        ObjectHelper.clean(req.body, db.source.notUpdatableFields);
         let id = req.params.id;
         let model = await db.source.findById(id);
         if (model) {

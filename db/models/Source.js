@@ -16,5 +16,8 @@ module.exports = (sequelize, DataTypes) => {
 
     Source.tableName = tableName;
 
+    Source.notUpdatableFields = [];
+    Source.requiredFileds = ['name'];
+
     return Source;
 };

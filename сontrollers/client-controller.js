@@ -4,6 +4,7 @@ let _ = require('lodash');
 
 let db = require('../db/models');
 let ControllerError = require('../errors/ControllerError');
+let ObjectHelper = require('../helpers/object-helper');
 
 const passportPath = path.join(__dirname, '../public', 'upload', 'passports');
 let upload = require('../middleware/file-midlleware')(passportPath);
@@ -113,6 +114,9 @@ controller.getAll = async function (req, res, next) {
 };
 controller.create = async function (req, res, next) {
     try {
+        if (!ObjectHelper.has(req.body, db.client.requiredFileds)) {
+            return next(new ControllerError('Missed required fields! ' + db.client.requiredFileds, 400, 'Client controller'));
+        }
         res.status(201).json(await db.client.supersave(req.body));
     } catch (e) {
         next(new ControllerError(e.message, 400, 'Client controller'));
@@ -120,6 +124,7 @@ controller.create = async function (req, res, next) {
 };
 controller.update = async function (req, res, next) {
     try {
+        ObjectHelper.clean(req.body, db.client.notUpdatableFields);
         let id = req.params.id;
         let model = await db.client.findById(id);
         if (model) {
@@ -144,33 +149,41 @@ controller.remove = async function (req, res, next) {
 
 controller.uploadPassport = async function (req, res, next) {
     let clientId = req.params.id;
-    upload(req, res, async function (err) {
-        if (err) {
-            return next(new ControllerError(err.message, 400, 'Client controller'));
-        } else {
-            try {
-                let images = [];
-                if (req.files && req.files.length > 0) {
-                    for (let file in req.files) {
-                        try {
-                            let image = await db.file.create({
-                                path: path.join('passports', req.files[file].filename),
-                                clientId
-                            });
-                            images.push(image);
-                        } catch (e) {
-                            e.status = 400;
-                            return next(e);
+    try {
+        if (await db.client.findByPk(clientId)) {
+            upload(req, res, async function (err) {
+                if (err) {
+                    return next(new ControllerError(err.message, 400, 'Client controller'));
+                } else {
+                    try {
+                        let images = [];
+                        if (req.files && req.files.length > 0) {
+                            for (let file in req.files) {
+                                try {
+                                    let image = await db.file.create({
+                                        path: path.join('passports', req.files[file].filename),
+                                        clientId
+                                    });
+                                    images.push(image);
+                                } catch (e) {
+                                    e.status = 400;
+                                    return next(e);
+                                }
+                            }
                         }
+                        return res.json(images);
+                    } catch (e) {
+                        console.log(e);
+                        return next(new ControllerError(e.message, 400, 'Client controller'));
                     }
                 }
-                return res.json(images);
-            } catch (e) {
-                console.log(e);
-                return next(new ControllerError(err.message, 400, 'Client controller'));
-            }
+            });
+        } else {
+            return next(new ControllerError('Client not found', 400, 'Client controller'));
         }
-    });
+    } catch (e) {
+        return next(new ControllerError(e.message, 400, 'Client controller'));
+    }
 };
 
 module.exports = controller;

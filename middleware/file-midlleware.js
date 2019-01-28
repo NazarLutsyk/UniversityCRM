@@ -5,11 +5,10 @@ let mkdirp = require("mkdirp");
 module.exports = function (pathToDir) {
     let diskStorage = multer.diskStorage({
         destination: function (req, file, cb) {
-            //todo add switch
             if (!pathToDir)
                 pathToDir = path.join(__dirname, "../public", "upload");
             mkdirp(pathToDir, function (err) {
-                if (err) return cb(e);
+                if (err) return cb(err);
                 else return cb(null, pathToDir);
             });
         },

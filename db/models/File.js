@@ -55,5 +55,14 @@ module.exports = (sequelize, DataTypes) => {
 
     File.tableName = tableName;
 
+    File.notUpdatableFields = [
+        'path',
+        foreignKeys.client,
+        foreignKeys.payment,
+        foreignKeys.audioCall,
+        foreignKeys.contract
+    ];
+    File.requiredFileds = [];
+
     return File;
 };

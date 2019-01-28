@@ -1,7 +1,7 @@
 const tableName = 'audio_call';
 
 const foreignKeys = {
-    application: 'clientId',
+    client: 'clientId',
     file: 'audio_callId'
 };
 
@@ -24,6 +24,15 @@ module.exports = (sequelize, DataTypes) => {
     };
 
     AudioCall.tableName = tableName;
+
+    AudioCall.notUpdatableFields = [
+        foreignKeys.client
+    ];
+    AudioCall.requiredFileds = [
+        'comment',
+        'date',
+        foreignKeys.client
+    ];
 
     return AudioCall;
 };

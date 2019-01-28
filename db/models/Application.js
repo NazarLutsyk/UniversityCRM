@@ -25,12 +25,25 @@ module.exports = (sequelize, DataTypes) => {
 
     Application.associate = function (models) {
         Application.belongsTo(models.client, {
-                foreignKey: foreignKeys.client
+                foreignKey: {
+                    field: foreignKeys.client,
+                    allowNull: false
+                }
             }
         );
-        Application.belongsTo(models.course, {foreignKey: foreignKeys.course});
+        Application.belongsTo(models.course, {
+            foreignKey: {
+                field: foreignKeys.course,
+                allowNull: false
+            }
+        });
         Application.belongsTo(models.group, {foreignKey: foreignKeys.group});
-        Application.belongsTo(models.city, {foreignKey: foreignKeys.city});
+        Application.belongsTo(models.city, {
+            foreignKey: {
+                field: foreignKeys.city,
+                allowNull: false
+            }
+        });
         Application.hasOne(models.contract, {
             foreignKey: foreignKeys.contract,
             onDelete: 'cascade',
@@ -56,6 +69,21 @@ module.exports = (sequelize, DataTypes) => {
     };
 
     Application.tableName = tableName;
+
+    Application.notUpdatableFields = [
+        foreignKeys.client,
+        foreignKeys.city,
+        foreignKeys.course,
+        'discount',
+        'resultPrice',
+        'leftToPay'
+    ];
+    Application.requiredFileds = [
+        foreignKeys.client,
+        foreignKeys.course,
+        foreignKeys.city,
+        'date'
+    ];
 
     return Application;
 };

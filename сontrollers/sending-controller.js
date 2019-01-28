@@ -63,20 +63,23 @@ controller.emailSending = async function (req, res, next) {
                 console.log('NEW EMAILS:');
                 console.log(newEmailsOpRes);
                 if (newEmailsOpRes.result) {
-                    let campaign = await sendpulse.createCampaign(
-                        'OWU',
-                        'nlutsik1@gmail.com',
-                        'OWU',
-                        text,
-                        mainAddressBook.id
-                    );
-                    console.log('CAMPAIGN');
-                    console.log(campaign);
-                    if (campaign.id) {
-                        res.json({ok: true});
-                    } else {
-                        next(new ControllerError(campaign.message, 500, 'Sending controller'))
-                    }
+                    setTimeout(async () => {
+                        let campaign = await sendpulse.createCampaign(
+                            'OWU',
+                            'nlutsik1@gmail.com',
+                            'OWU',
+                            text,
+                            mainAddressBook.id
+                        );
+                        console.log('CAMPAIGN');
+                        console.log(campaign);
+                        if (campaign.id) {
+                            res.json({ok: true});
+                        } else {
+                            next(new ControllerError(campaign.message, 500, 'Sending controller'))
+                        }
+
+                    }, 3000);
                 }
             } else {
                 next(new ControllerError(mainAddressBook.message, 500, 'Sending controller'))

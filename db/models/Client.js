@@ -78,5 +78,8 @@ module.exports = (sequelize, DataTypes) => {
         return await Client.create(client);
     };
 
+    Client.notUpdatableFields = [];
+    Client.requiredFileds = ['name', 'surname'];
+
     return Client;
 };

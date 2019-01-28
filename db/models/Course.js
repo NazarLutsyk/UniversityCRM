@@ -20,5 +20,8 @@ module.exports = (sequelize, DataTypes) => {
 
     Course.tableName = tableName;
 
+    Course.notUpdatableFields = ['resultPrice'];
+    Course.requiredFileds = ['name', 'fullPrice'];
+
     return Course;
 };

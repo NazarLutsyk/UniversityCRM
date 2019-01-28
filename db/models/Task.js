@@ -16,5 +16,13 @@ module.exports = (sequelize, DataTypes) => {
 
     Task.tableName = tableName;
 
+    Task.notUpdatableFields = [
+        foreignKeys.client
+    ];
+    Task.requiredFileds = [
+        foreignKeys.client,
+        'message'
+    ];
+
     return Task;
 };

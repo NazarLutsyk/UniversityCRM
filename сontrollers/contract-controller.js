@@ -4,6 +4,7 @@ let ControllerError = require('../errors/ControllerError');
 let path = require('path');
 const contractsPath = path.join(__dirname, '../public', 'upload', 'contracts');
 let upload = require('../middleware/file-midlleware')(contractsPath);
+let ObjectHelper = require('../helpers/object-helper');
 
 upload = upload.array('files');
 
@@ -47,43 +48,47 @@ controller.getAll = async function (req, res, next) {
 controller.create = async function (req, res, next) {
     try {
         let applicationId = req.params.applicationId;
-        upload(req, res, async function (err) {
-            if (err) {
-                return next(new ControllerError(err.message, 400, 'Contract controller'));
-            } else {
-                try {
-                    let contractFiles = [];
-                    if (req.files && req.files.length > 0) {
-                        let contract = await db.contract.create({
-                            date: new Date(),
-                            applicationId
-                        });
-                        for (let file in req.files) {
-                            try {
-                                let contractFile = await db.file.create({
-                                    path: path.join('contracts', req.files[file].filename),
-                                    contractId: contract.id
-                                });
-                                contractFiles.push(contractFile);
-                            } catch (e) {
-                                e.status = 400;
-                                return next(e);
+        if (db.application.findByPk(applicationId)) {
+            upload(req, res, async function (err) {
+                if (err) {
+                    return next(new ControllerError(err.message, 400, 'Contract controller'));
+                } else {
+                    try {
+                        let contractFiles = [];
+                        if (req.files && req.files.length > 0) {
+                            let contract = await db.contract.create({
+                                date: new Date(),
+                                applicationId
+                            });
+                            for (let file in req.files) {
+                                try {
+                                    let contractFile = await db.file.create({
+                                        path: path.join('contracts', req.files[file].filename),
+                                        contractId: contract.id
+                                    });
+                                    contractFiles.push(contractFile);
+                                } catch (e) {
+                                    e.status = 400;
+                                    return next(e);
+                                }
                             }
                         }
+                        return res.json(contractFiles);
+                    } catch (e) {
+                        return next(new ControllerError(err.message, 400, 'Contract controller'));
                     }
-                    return res.json(contractFiles);
-                } catch (e) {
-                    return next(new ControllerError(err.message, 400, 'Contract controller'));
                 }
-            }
-        });
-
+            });
+        } else {
+            next(new ControllerError('Application not found', 400, 'Contract controller'));
+        }
     } catch (e) {
         next(new ControllerError(e.message, 400, 'Contract controller'));
     }
 };
 controller.update = async function (req, res, next) {
     try {
+        ObjectHelper.clean(req.body, db.contract.notUpdatableFields);
         let id = req.params.id;
         let model = await db.contract.findById(id);
         if (model) {
@@ -106,33 +111,41 @@ controller.remove = async function (req, res, next) {
 };
 
 controller.upload = async function (req, res, next) {
-    let contractId = req.params.id;
-    upload(req, res, async function (err) {
-        if (err) {
-            return next(new ControllerError(err.message, 400, 'Contract controller'));
-        } else {
-            try {
-                let contractFiles = [];
-                if (req.files && req.files.length > 0) {
-                    for (let file in req.files) {
-                        try {
-                            let contractFile = await db.file.create({
-                                path: path.join('contracts', req.files[file].filename),
-                                contractId
-                            });
-                            contractFiles.push(contractFile);
-                        } catch (e) {
-                            e.status = 400;
-                            return next(e);
+    try {
+        let contractId = req.params.id;
+        if (await db.contract.findByPk(contractId)) {
+            upload(req, res, async function (err) {
+                if (err) {
+                    return next(new ControllerError(err.message, 400, 'Contract controller'));
+                } else {
+                    try {
+                        let contractFiles = [];
+                        if (req.files && req.files.length > 0) {
+                            for (let file in req.files) {
+                                try {
+                                    let contractFile = await db.file.create({
+                                        path: path.join('contracts', req.files[file].filename),
+                                        contractId
+                                    });
+                                    contractFiles.push(contractFile);
+                                } catch (e) {
+                                    e.status = 400;
+                                    return next(e);
+                                }
+                            }
                         }
+                        return res.json(contractFiles);
+                    } catch (e) {
+                        return next(new ControllerError(e.message, 400, 'Contract controller'));
                     }
                 }
-                return res.json(contractFiles);
-            } catch (e) {
-                return next(new ControllerError(err.message, 400, 'Contract controller'));
-            }
+            });
+        } else {
+            return next(new ControllerError('Contract not found', 400, 'Client controller'));
         }
-    });
+    } catch (e) {
+        return next(new ControllerError(e.message, 400, 'Client controller'));
+    }
 };
 
 module.exports = controller;

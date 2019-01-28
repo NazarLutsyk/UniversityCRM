@@ -30,5 +30,18 @@ module.exports = (sequelize, DataTypes) => {
 
     Group.tableName = tableName;
 
+    Group.notUpdatableFields = [
+        foreignKeys.city,
+        foreignKeys.course,
+        'usedPractice'
+    ];
+    Group.requiredFileds = [
+        'name',
+        'startDate',
+        'startTime',
+        foreignKeys.city,
+        foreignKeys.course
+    ];
+
     return Group;
 };

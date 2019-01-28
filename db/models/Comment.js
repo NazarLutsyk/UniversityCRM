@@ -16,5 +16,14 @@ module.exports = (sequelize, DataTypes) => {
 
     Comment.tableName = tableName;
 
+    Comment.notUpdatableFields = [
+        foreignKeys.client
+    ];
+    Comment.requiredFileds = [
+        'text',
+        'date',
+        foreignKeys.client
+    ];
+
     return Comment;
 };

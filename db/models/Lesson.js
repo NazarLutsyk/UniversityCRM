@@ -18,5 +18,14 @@ module.exports = (sequelize, DataTypes) => {
 
     Lesson.tableName = tableName;
 
+    Lesson.notUpdatableFields = [
+        foreignKeys.group
+    ];
+    Lesson.requiredFileds = [
+        'topic',
+        'main',
+        foreignKeys.group
+    ];
+
     return Lesson;
 };

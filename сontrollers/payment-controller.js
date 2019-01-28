@@ -6,6 +6,7 @@ let ControllerError = require('../errors/ControllerError');
 let path = require('path');
 const paymentsPath = path.join(__dirname, '../public', 'upload', 'payments');
 let upload = require('../middleware/file-midlleware')(paymentsPath);
+let ObjectHelper = require('../helpers/object-helper');
 
 upload = upload.array('files');
 
@@ -88,6 +89,9 @@ controller.getAll = async function (req, res, next) {
 };
 controller.create = async function (req, res, next) {
     try {
+        if (!ObjectHelper.has(req.body, db.payment.requiredFileds)) {
+            return next(new ControllerError('Missed required fields! ' + db.payment.requiredFileds, 400, 'Payment controller'));
+        }
         let model = await db.payment.create(req.body);
         let application = await model.getApplication();
         application.leftToPay -= model.amount;
@@ -113,32 +117,40 @@ controller.remove = async function (req, res, next) {
 
 controller.upload = async function (req, res, next) {
     let paymentId = req.params.id;
-    upload(req, res, async function (err) {
-        if (err) {
-            return next(new ControllerError(err.message, 400, 'Payment controller'));
-        } else {
-            try {
-                let paymentFiles = [];
-                if (req.files && req.files.length > 0) {
-                    for (let file in req.files) {
-                        try {
-                            let paymentFile = await db.file.create({
-                                path: path.join('payments', req.files[file].filename),
-                                paymentId
-                            });
-                            paymentFiles.push(paymentFile);
-                        } catch (e) {
-                            e.status = 400;
-                            return next(e);
+    try {
+        if (await db.payment.findByPk(paymentId)) {
+            upload(req, res, async function (err) {
+                if (err) {
+                    return next(new ControllerError(err.message, 400, 'Payment controller'));
+                } else {
+                    try {
+                        let paymentFiles = [];
+                        if (req.files && req.files.length > 0) {
+                            for (let file in req.files) {
+                                try {
+                                    let paymentFile = await db.file.create({
+                                        path: path.join('payments', req.files[file].filename),
+                                        paymentId
+                                    });
+                                    paymentFiles.push(paymentFile);
+                                } catch (e) {
+                                    e.status = 400;
+                                    return next(e);
+                                }
+                            }
                         }
+                        return res.json(paymentFiles);
+                    } catch (e) {
+                        return next(new ControllerError(e.message, 400, 'Payment controller'));
                     }
                 }
-                return res.json(paymentFiles);
-            } catch (e) {
-                return next(new ControllerError(err.message, 400, 'Payment controller'));
-            }
+            });
+        } else {
+            return next(new ControllerError('Payment not found', 400, 'Client controller'));
         }
-    });
+    } catch (e) {
+        return next(new ControllerError(e.message, 400, 'Payment controller'));
+    }
 };
 
 module.exports = controller;

@@ -2,6 +2,7 @@ let _ = require('lodash');
 
 let db = require('../db/models');
 let ControllerError = require('../errors/ControllerError');
+let ObjectHelper = require('../helpers/object-helper');
 
 let controller = {};
 
@@ -56,6 +57,9 @@ controller.getAll = async function (req, res, next) {
 };
 controller.create = async function (req, res, next) {
     try {
+        if (!ObjectHelper.has(req.body, db.course.requiredFileds)) {
+            return next(new ControllerError('Missed required fields! ' + db.course.requiredFileds, 400, 'Course controller'));
+        }
         let courseBuild = req.body;
         courseBuild.discount = req.body.discount ? req.body.discount : 0;
         courseBuild.resultPrice = courseBuild.fullPrice - (courseBuild.fullPrice * (courseBuild.discount / 100));
@@ -69,8 +73,10 @@ controller.create = async function (req, res, next) {
 };
 controller.update = async function (req, res, next) {
     try {
+        ObjectHelper.clean(req.body, db.course.notUpdatableFields);
+
         let id = req.params.id;
-            let courseBuild = req.body;
+        let courseBuild = req.body;
         courseBuild.discount = req.body.discount ? req.body.discount : 0;
         courseBuild.resultPrice = courseBuild.fullPrice - (courseBuild.fullPrice * (courseBuild.discount / 100));
         let model = await db.course.findById(id);

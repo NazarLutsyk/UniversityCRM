@@ -3,6 +3,7 @@ let _ = require('lodash');
 let path = require('path');
 let db = require('../db/models');
 let ControllerError = require('../errors/ControllerError');
+let ObjectHelper = require('../helpers/object-helper');
 
 const audioCallsPath = path.join(__dirname, '../public', 'upload', 'audiocalls');
 let upload = require('../middleware/file-midlleware')(audioCallsPath);
@@ -99,6 +100,9 @@ controller.getAll = async function (req, res, next) {
 };
 controller.create = async function (req, res, next) {
     try {
+        if (!ObjectHelper.has(req.body, db.audio_call.requiredFileds)) {
+            return next(new ControllerError('Missed required fields! ' + db.audio_call.requiredFileds, 400, 'AudioCall controller'));
+        }
         let model = await db.audio_call.create(req.body);
         res.status(201).json(model);
     } catch (e) {
@@ -107,6 +111,7 @@ controller.create = async function (req, res, next) {
 };
 controller.update = async function (req, res, next) {
     try {
+        ObjectHelper.clean(req.body, db.audio_call.notUpdatableFields);
         let id = req.params.id;
         let model = await db.audio_call.findById(id);
         if (model) {
@@ -130,33 +135,40 @@ controller.remove = async function (req, res, next) {
 
 controller.upload = async function (req, res, next) {
     let audio_callId = req.params.id;
-    upload(req, res, async function (err) {
-        if (err) {
-            return next(new ControllerError(err.message, 400, 'AudioCall controller'));
-        } else {
-            try {
-                let images = [];
-                if (req.files && req.files.length > 0) {
-                    for (let file in req.files) {
-                        try {
-                            let image = await db.file.create({
-                                path: path.join('audiocalls', req.files[file].filename),
-                                audio_callId
-                            });
-                            images.push(image);
-                        } catch (e) {
-                            e.status = 400;
-                            return next(e);
+    try {
+        if (await db.audio_call.findByPk(audio_callId)) {
+            upload(req, res, async function (err) {
+                if (err) {
+                    return next(new ControllerError(err.message, 400, 'AudioCall controller'));
+                } else {
+                    try {
+                        let images = [];
+                        if (req.files && req.files.length > 0) {
+                            for (let file in req.files) {
+                                try {
+                                    let image = await db.file.create({
+                                        path: path.join('audiocalls', req.files[file].filename),
+                                        audio_callId
+                                    });
+                                    images.push(image);
+                                } catch (e) {
+                                    e.status = 400;
+                                    return next(e);
+                                }
+                            }
                         }
+                        return res.json(images);
+                    } catch (e) {
+                        return next(new ControllerError(e.message, 400, 'AudioCall controller'));
                     }
                 }
-                return res.json(images);
-            } catch (e) {
-                return next(new ControllerError(err.message, 400, 'AudioCall controller'));
-            }
+            });
+        } else {
+            return next(new ControllerError('AudioCall not found', 400, 'AudioCall controller'));
         }
-    });
-
+    } catch (e) {
+        return next(new ControllerError(e.message, 400, 'AudioCall controller'));
+    }
 };
 
 module.exports = controller;

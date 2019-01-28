@@ -24,5 +24,18 @@ module.exports = (sequelize, DataTypes) => {
 
     Payment.tableName = tableName;
 
+    Payment.notUpdatableFields = [
+        'number',
+        'date',
+        'amount',
+        foreignKeys.application
+    ];
+    Payment.requiredFileds = [
+        'number',
+        'date',
+        'amount',
+        foreignKeys.application
+    ];
+
     return Payment;
 };

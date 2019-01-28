@@ -13,8 +13,9 @@ let SequelizeStore = require('connect-session-sequelize')(session.Store);
 require('./config/passport');
 let passport = require('passport');
 
-let queryParser = require('./helpers/query-parser');
+let queryParser = require('./middleware/query-parser');
 let apiRouter = require('./routes/api');
+let staticRouter = require('./routes/static-router');
 
 let sessionStore = new SequelizeStore({
     db: db.sequelize,
@@ -31,7 +32,6 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({
     secret: 'KHkhSdlasd54sdaSdad44',
     resave: false,
@@ -51,6 +51,7 @@ app.get('/', (req, res, next) => {
 });
 
 app.use('/api', apiRouter);
+app.use('/upload', staticRouter);
 
 
 app.use(function (req, res, next) {
