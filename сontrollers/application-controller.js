@@ -44,6 +44,11 @@ controller.getAll = async function (req, res, next) {
         let query = req.query;
 
         let newIncludes = [];
+
+        if (_.has(query.q, 'certificate.$like')) {
+            query.q.certificate.$like = `%${query.q.certificate.$like}%`
+        }
+
         if (query.include.length > 0) {
             for (const includeTableName of query.include) {
                 let include = null;

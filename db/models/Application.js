@@ -21,6 +21,7 @@ module.exports = (sequelize, DataTypes) => {
         leftToPay: DataTypes.INTEGER,
         hasPractice: DataTypes.TINYINT,
         wantPractice: DataTypes.TINYINT,
+        certificate: DataTypes.STRING
     }, {});
 
     Application.associate = function (models) {

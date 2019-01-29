@@ -27,5 +27,5 @@ module.exports = function (pathToDir) {
             }
         }
     });
-    return multer({storage: diskStorage});
+    return multer({storage: diskStorage, limits: {fileSize: 30000000}});
 };
