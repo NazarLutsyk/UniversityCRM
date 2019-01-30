@@ -19,5 +19,6 @@ controllers.auth = require('./auth-controller');
 controllers.statistic = require('./statistic-controller');
 controllers.file = require('./file-controller');
 controllers.sending = require('./sending-controller');
+controllers.social = require('./social-controller');
 
 module.exports = controllers;
