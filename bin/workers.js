@@ -7,15 +7,15 @@ let workers = {};
 
 workers.startReceivingEmails = function () {
     let io = socketManager.getIo();
-    receiveMailApplicationsWorker()
-        .then(async (mail) => {
-            await db.eapplication.create(mail.json);
-            io.emit('mail', mail);
-        })
-        .catch((err) => {
-            console.log(err);
-            io.emit('error', err);
-        });
+    let mailEvents = receiveMailApplicationsWorker;
+    mailEvents.on('data', async (mail) => {
+        await db.eapplication.create(mail.json);
+        io.emit('mail', mail);
+    });
+    mailEvents.on('error', (err) => {
+        console.log(err);
+        io.emit('error', err);
+    })
 };
 
 workers.startLogging = function () {

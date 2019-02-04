@@ -20,5 +20,7 @@ controllers.statistic = require('./statistic-controller');
 controllers.file = require('./file-controller');
 controllers.sending = require('./sending-controller');
 controllers.social = require('./social-controller');
+controllers.competitor = require('./competitor-controller');
+controllers.competitorApplication = require('./competitor-application-controller');
 
 module.exports = controllers;

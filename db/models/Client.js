@@ -9,6 +9,7 @@ const foreignKeys = {
     file: 'clientId',
     audioCall: 'clientId',
     social: 'clientId',
+    competitorApplication: 'clientId'
 };
 
 module.exports = (sequelize, DataTypes) => {
@@ -68,6 +69,12 @@ module.exports = (sequelize, DataTypes) => {
         });
         Client.hasMany(models.social, {
             foreignKey: foreignKeys.social,
+            onDelete: 'cascade',
+            onUpdate: 'cascade',
+            hooks: true
+        });
+        Client.hasMany(models.competitor_application, {
+            foreignKey: foreignKeys.competitorApplication,
             onDelete: 'cascade',
             onUpdate: 'cascade',
             hooks: true

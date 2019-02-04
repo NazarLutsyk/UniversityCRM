@@ -1,9 +1,10 @@
 const Imap = require('imap');
 const simpleParser = require('mailparser').simpleParser;
 const MailCredentials = require('../../config/mail');
+let EventEmitter = require('events').EventEmitter;
 
-let globalResolve = null;
-let globalReject = null;
+let emitter = new EventEmitter();
+
 
 const MONTHS = [
     'Jan', 'Feb', 'Mar',
@@ -20,6 +21,8 @@ let imap = new Imap({
     tls: true
 });
 
+imap.connect();
+
 function openInbox(cb) {
     imap.openBox('INBOX', false, cb);
 }
@@ -30,7 +33,7 @@ function performMessage(stream, info) {
     stream.on('data', function (chunk) {
         buffer += chunk.toString('utf8');
     });
-    stream.once('end', function () {
+    stream.on('end', function () {
         simpleParser(buffer)
             .then(parsed => {
                     let jsonApp = parsed
@@ -38,7 +41,8 @@ function performMessage(stream, info) {
                         .replace(/&quot;/g, '\"')
                         .replace(/(<a.*?>|<\/a>)/gmi, '')
                         .match(/\{(?:[^{}]|(R?))*\}/igm)[0];
-                    globalResolve(
+                    console.log(jsonApp);
+                    emitter.emit('data',
                         {
                             from: parsed.from.value[0].address,
                             to: parsed.to.value[0].address,
@@ -49,9 +53,12 @@ function performMessage(stream, info) {
                 }
             )
             .catch(err => {
-                console.log(err);
+                emitter.emit('error', err);
             });
     });
+    stream.on('error', (err) => {
+        emitter.emit('error', err);
+    })
 }
 
 imap.once('ready', function () {
@@ -59,14 +66,14 @@ imap.once('ready', function () {
     openInbox((err, box) => {
         imap.on('mail', (countOfNewMessagesArr) => {
             openInbox(function (err, box) {
-                if (err) globalReject(err);
+                if (err) emitter.emit('error', err);
 
                 const now = new Date();
                 now.setDate(now.getDate() - 1);
                 const since = `${MONTHS[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;
 
                 imap.search(['UNSEEN', ['FROM', 'nlutsik3@gmail.com'], ['SINCE', since]], function (err, results) {
-                    if (err) globalReject(err);
+                    if (err) emitter.emit('error', err);
 
                     let imapQuery = imap.fetch(results, {bodies: '', markSeen: true});
 
@@ -74,8 +81,8 @@ imap.once('ready', function () {
                         msg.on('body', performMessage);
                     });
 
-                    imapQuery.once('error', function (err) {
-                        globalReject(err);
+                    imapQuery.on('error', function (err) {
+                        emitter.emit('error', err);
                     });
                 });
             });
@@ -84,18 +91,12 @@ imap.once('ready', function () {
 });
 
 imap.once('error', function (err) {
-    globalReject(err);
+    emitter.emit('error', err);
 });
 
 imap.once('end', function () {
     console.log('Connection ended');
 });
 
-module.exports = () => {
-    return new Promise((resolve, reject) => {
-        globalResolve = resolve;
-        globalReject = reject;
-        imap.connect();
-    });
-};
+module.exports = emitter;
 
