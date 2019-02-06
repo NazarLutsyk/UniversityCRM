@@ -55,11 +55,20 @@ controller.getAll = async function (req, res, next) {
                 let includeWhere = {};
                 let innerInclude = [];
                 let required = false;
-                if (_.has(query.q, 'client.name') && includeTableName === 'client') {
+                if (_.has(query.q, 'client.fullname') && includeTableName === 'client') {
                     includeWhere = {
-                        name: {
-                            $like: `%${query.q.client.name}%`
-                        }
+                        $or: [
+                            {
+                                name: {
+                                    $like: `%${query.q.client.fullname}%`
+                                }
+                            },
+                            {
+                                surname: {
+                                    $like: `%${query.q.client.fullname}%`
+                                }
+                            }
+                        ]
                     };
                     required = true;
                 }

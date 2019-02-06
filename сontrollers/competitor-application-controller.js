@@ -28,6 +28,62 @@ controller.getAll = async function (req, res, next) {
     try {
         let query = req.query;
 
+        let newIncludes = [];
+        if (query.include.length > 0) {
+            for (const includeTableName of query.include) {
+                let include = null;
+                let includeWhere = {};
+                let required = false;
+                if (_.has(query.q, 'client.fullname') && includeTableName === 'client') {
+                    includeWhere = {
+                        $or: [
+                            {
+                                name: {
+                                    $like: `%${query.q.client.fullname}%`
+                                }
+                            },
+                            {
+                                surname: {
+                                    $like: `%${query.q.client.fullname}%`
+                                }
+                            }
+                        ]
+                    };
+                    required = true;
+                }
+                if (_.has(query.q, 'competitor.name') && includeTableName === 'competitor') {
+                    includeWhere = {
+                        name: {
+                            $like: `%${query.q.competitor.name}%`
+                        }
+                    };
+                    required = true;
+                }
+                if (_.has(query.q, 'competitor.id') && includeTableName === 'competitor') {
+                    includeWhere = {
+                        id: query.q.competitor.id
+                    };
+                    required = true;
+                }
+                if (_.has(query.q, 'course.name') && includeTableName === 'course') {
+                    includeWhere = {
+                        name: {
+                            $like: `%${query.q.course.name}%`
+                        }
+                    };
+                    required = true;
+                }
+                include = {
+                    model: db[includeTableName],
+                    required,
+                    where: includeWhere
+                };
+                newIncludes.push(include);
+                delete query.q[includeTableName];
+            }
+        }
+        query.include = newIncludes;
+
         let models = await db.competitor_application.findAll(
             {
                 where: query.q,

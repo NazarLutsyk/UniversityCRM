@@ -3,6 +3,7 @@ const tableName = 'competitor_application';
 const foreignKeys = {
     competitor: 'competitorId',
     client: 'clientId',
+    course: 'courseId'
 };
 
 
@@ -14,6 +15,7 @@ module.exports = (sequelize, DataTypes) => {
     CompetitorApplication.associate = function (models) {
         CompetitorApplication.belongsTo(models.client, {foreignKey: foreignKeys.client});
         CompetitorApplication.belongsTo(models.competitor, {foreignKey: foreignKeys.competitor});
+        CompetitorApplication.belongsTo(models.course, {foreignKey: foreignKeys.course});
     };
 
     CompetitorApplication.tableName = tableName;

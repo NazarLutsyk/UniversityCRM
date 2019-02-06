@@ -111,4 +111,28 @@ controller.groupJournal = async function (req, res, next) {
     }
 };
 
+controller.competitorApplications = async function (req, res, next) {
+    try {
+        const startDate = req.query.q && req.query.q.startDate ? req.query.q.startDate : '1970-01-01';
+        const endDate = req.query.q && req.query.q.endDate ? req.query.q.endDate : '3000-12-12';
+        let stat = await db.sequelize.query(
+                `
+              select c.name as competitor, count(clientId) as count
+              from competitor_application
+                     join competitor c on competitor_application.competitorId = c.id
+              where clientId in (select a.clientId
+                                 from application a
+                                 where a.createdAt >= :startDate
+                                   and a.createdAt <= :endDate)
+              group by c.name            `,
+            {replacements: {startDate, endDate}}
+        );
+        res.json(stat[0]);
+    } catch (e) {
+        next(new ControllerError(e.message, 400, 'Statistic controller'));
+    }
+};
+
 module.exports = controller;
+
+

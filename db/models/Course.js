@@ -3,6 +3,7 @@ const tableName = 'course';
 const foreignKeys = {
     application: 'courseId',
     group: 'courseId',
+    competitorApplication: 'courseId'
 };
 
 module.exports = (sequelize, DataTypes) => {
@@ -16,6 +17,7 @@ module.exports = (sequelize, DataTypes) => {
     Course.associate = function (models) {
         Course.hasMany(models.application, {foreignKey: foreignKeys.application});
         Course.hasMany(models.group, {foreignKey: foreignKeys.group});
+        Course.hasMany(models.competitor_application, {foreignKey: foreignKeys.competitorApplication});
     };
 
     Course.tableName = tableName;
