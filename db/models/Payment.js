@@ -8,8 +8,9 @@ const foreignKeys = {
 module.exports = (sequelize, DataTypes) => {
     const Payment = sequelize.define(tableName, {
         number: DataTypes.STRING,
-        date: DataTypes.DATEONLY,
         amount: DataTypes.INTEGER,
+        expectedDate: DataTypes.DATEONLY,
+        paymentDate: DataTypes.DATEONLY
     }, {});
 
     Payment.associate = function (models) {
@@ -25,15 +26,10 @@ module.exports = (sequelize, DataTypes) => {
     Payment.tableName = tableName;
 
     Payment.notUpdatableFields = [
-        'number',
-        'date',
-        'amount',
         foreignKeys.application
     ];
     Payment.requiredFileds = [
-        'number',
-        'date',
-        'amount',
+        'expectedDate',
         foreignKeys.application
     ];
 

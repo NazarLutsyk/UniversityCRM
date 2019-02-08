@@ -68,6 +68,7 @@ controller.getAll = async function (req, res, next) {
             for (const includeTableName of query.include) {
                 let include = null;
                 let includeWhere = {};
+                let innerInclude = null;
                 let required = false;
                 if (_.has(query.q, 'application.groupId') && includeTableName === 'application') {
                     includeWhere = {
@@ -75,13 +76,38 @@ controller.getAll = async function (req, res, next) {
                     };
                     required = true;
                 }
+                if (_.has(query.q, 'social.url') && includeTableName === 'social') {
+                    includeWhere = {
+                        url: {
+                            $like: `%${query.q.social.url}%`
+                        }
+                    };
+                    required = true;
+                }
+                if (includeTableName === 'application' && _.has(query.q, 'debtor')) {
+                    innerInclude = {
+                        model: db.payment,
+                        where: {
+                            expectedDate: {
+                                $lte: new Date()
+                            },
+                            paymentDate: null
+                        },
+                        required: true
+                    };
+                    delete query.q.debtor;
+                }
                 include = {
                     model: db[includeTableName],
                     required,
                     where: includeWhere
                 };
+                if (innerInclude) {
+                    include.include = [innerInclude];
+                }
                 newIncludes.push(include);
-                delete query.q[includeTableName];
+                if (query.q[includeTableName])
+                    delete query.q[includeTableName];
             }
         }
         query.include = newIncludes;
@@ -173,13 +199,57 @@ controller.uploadPassport = async function (req, res, next) {
                         }
                         return res.json(images);
                     } catch (e) {
-                        console.log(e);
                         return next(new ControllerError(e.message, 400, 'Client controller'));
                     }
                 }
             });
         } else {
             return next(new ControllerError('Client not found', 400, 'Client controller'));
+        }
+    } catch (e) {
+        return next(new ControllerError(e.message, 400, 'Client controller'));
+    }
+};
+
+controller.exists = async (req, res, next) => {
+    try {
+        let body = req.body;
+        let where = {$or: []};
+        if (body.name && body.surname) {
+            where.$or.push(
+                {
+                    name: {
+                        $like: `%${body.name}%`
+                    },
+                    surname: {
+                        $like: `%${body.surname}%`
+                    }
+                }
+            );
+        }
+        if (body.email) {
+            where.$or.push(
+                {
+                    email: {
+                        $like: `%${body.email}%`
+                    }
+                }
+            );
+        }
+        if (body.phone) {
+            where.$or.push({
+                phone: {
+                    $like: `%${body.phone}%`
+                }
+            });
+        }
+        if (where.$or.length > 0) {
+            let founded = await db.client.findAll({
+                where
+            });
+            res.json(founded);
+        } else {
+            res.json([]);
         }
     } catch (e) {
         return next(new ControllerError(e.message, 400, 'Client controller'));

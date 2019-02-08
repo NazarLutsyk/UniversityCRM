@@ -9,6 +9,7 @@ router.route('/')
 
 router.route('/:id')
     .get(guard.roles(ROLES.BOSS_ROLE, ROLES.MANAGER_ROLE), controllers.payment.getById)
+    .put(guard.roles(ROLES.BOSS_ROLE, ROLES.MANAGER_ROLE), controllers.payment.update)
     .delete(guard.roles(ROLES.BOSS_ROLE, ROLES.MANAGER_ROLE), controllers.payment.remove);
 
 router.post('/:id/upload', controllers.payment.upload);

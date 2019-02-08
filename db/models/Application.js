@@ -77,7 +77,6 @@ module.exports = (sequelize, DataTypes) => {
         foreignKeys.course,
         'discount',
         'resultPrice',
-        'leftToPay'
     ];
     Application.requiredFileds = [
         foreignKeys.client,

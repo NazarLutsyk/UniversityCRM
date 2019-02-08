@@ -40,9 +40,10 @@ controller.getAll = async function (req, res, next) {
 
         let newIncludes = [];
         if (query.include.length > 0) {
-            for (const includeTableName of query.include) {
+            for (let includeTableName of query.include) {
                 let include = null;
                 let includeWhere = {};
+                let innerInclude = null;
                 let required = false;
                 if (_.has(query.q, 'application.id') && includeTableName === 'application') {
                     includeWhere = {
@@ -50,13 +51,21 @@ controller.getAll = async function (req, res, next) {
                     };
                     required = true;
                 }
+                if (includeTableName === 'application>client') {
+                    includeTableName = 'application';
+                    innerInclude = db.client;
+                }
                 include = {
                     model: db[includeTableName],
                     required,
-                    where: includeWhere
+                    where: includeWhere,
                 };
+                if (innerInclude) {
+                    include.include = [{model: innerInclude}];
+                }
                 newIncludes.push(include);
-                delete query.q[includeTableName];
+                if (query.q[includeTableName])
+                    delete query.q[includeTableName];
             }
         }
         query.include = newIncludes;
@@ -94,7 +103,7 @@ controller.create = async function (req, res, next) {
         }
         let model = await db.payment.create(req.body);
         let application = await model.getApplication();
-        application.leftToPay -= model.amount;
+        application.leftToPay -= model.amount ? model.amount : 0;
         await application.save();
         res.status(201).json(model);
     } catch (e) {
@@ -111,6 +120,36 @@ controller.remove = async function (req, res, next) {
         await paymentToDestroy.destroy();
         res.sendStatus(204);
     } catch (e) {
+        next(new ControllerError(e.message, 400, 'Payment controller'))
+    }
+};
+
+controller.update = async (req, res, next) => {
+    let transaction;
+    try {
+        ObjectHelper.clean(req.body, db.payment.notUpdatableFields);
+        let id = req.params.id;
+        let model = await db.payment.findById(id);
+        if (model) {
+            if (req.body.amount && req.body.amount !== model.amount) {
+                let application = await model.getApplication();
+                const amountDifference = req.body.amount - (model.amount ? model.amount : 0);
+                application.leftToPay = application.leftToPay - amountDifference;
+                transaction = await db.sequelize.transaction();
+                await application.save({transaction});
+                await model.update(req.body, {transaction});
+                await transaction.commit();
+                res.status(201).json(await model.update(req.body));
+            } else {
+                res.status(201).json(await model.update(req.body));
+            }
+        } else {
+            next(new ControllerError('Model not found', 400, 'Payment controller'))
+        }
+    } catch (e) {
+        if (transaction) {
+            await transaction.rollback();
+        }
         next(new ControllerError(e.message, 400, 'Payment controller'))
     }
 };

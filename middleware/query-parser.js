@@ -6,7 +6,7 @@ module.exports = () => (req, res, next) => {
         query.limit = req.query.limit ? +req.query.limit : null;
         query.attributes = req.query.attributes ? JSON.parse(req.query.attributes) : null;
         query.sort = req.query.sort ? [(JSON.parse(req.query.sort)).split(' ')] : null;
-        query.include = req.query.include ? JSON.parse(req.query.include) : [];
+        query.include = req.query.include ? JSON.parse(req.query.include).filter(s => s.length > 0) : [];
 
         req.query = query;
     } catch (e) {
