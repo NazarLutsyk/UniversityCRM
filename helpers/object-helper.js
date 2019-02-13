@@ -1,9 +1,10 @@
+let _ = require('lodash');
 let helper = {};
 
 helper.clean = function (target, fields) {
     if (target && fields && fields.length > 0) {
         for (const field of fields) {
-            if (target[field]) {
+            if (_.has(target, field)) {
                 delete target[field];
             }
         }
@@ -16,7 +17,7 @@ helper.clean = function (target, fields) {
 helper.has = function (target, fields) {
     if (target && fields && fields.length > 0) {
         for (const field of fields) {
-            if (!target[field]) {
+            if (!_.has(target, field)) {
                 return false;
             }
         }

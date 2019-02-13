@@ -16,4 +16,6 @@ router.post('/exists', controllers.client.exists);
 
 router.post('/:id/passport/upload', controllers.client.uploadPassport);
 
+router.get('/:id/lessons', controllers.client.getLessons);
+
 module.exports = router;

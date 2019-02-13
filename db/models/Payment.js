@@ -9,6 +9,7 @@ module.exports = (sequelize, DataTypes) => {
     const Payment = sequelize.define(tableName, {
         number: DataTypes.STRING,
         amount: DataTypes.INTEGER,
+        expectedAmount: DataTypes.INTEGER,
         expectedDate: DataTypes.DATEONLY,
         paymentDate: DataTypes.DATEONLY
     }, {});
@@ -30,6 +31,7 @@ module.exports = (sequelize, DataTypes) => {
     ];
     Payment.requiredFileds = [
         'expectedDate',
+        'expectedAmount',
         foreignKeys.application
     ];
 

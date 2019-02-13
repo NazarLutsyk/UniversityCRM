@@ -51,19 +51,66 @@ controller.getAll = async function (req, res, next) {
                     };
                     required = true;
                 }
+
                 if (includeTableName === 'application>client') {
+                    innerInclude = null;
+                    let clientInclude = {model: db.client};
+                    if (_.has(query.q, 'client.fullname')) {
+                        let where = {
+                            $or: [
+                                {
+                                    name: {
+                                        $like: `%${query.q.client.fullname}%`
+                                    }
+                                },
+                                {
+                                    surname: {
+                                        $like: `%${query.q.client.fullname}%`
+                                    }
+                                }
+                            ]
+                        };
+                        clientInclude.where = where;
+                        delete query.q.client;
+                    }
+                    innerInclude = clientInclude;
                     includeTableName = 'application';
-                    innerInclude = db.client;
                 }
-                include = {
-                    model: db[includeTableName],
-                    required,
-                    where: includeWhere,
-                };
-                if (innerInclude) {
-                    include.include = [{model: innerInclude}];
+
+                if (includeTableName === 'application>course') {
+                    innerInclude = null;
+                    let courseInclude = {model: db.course};
+                    if (_.has(query.q, 'course.name')) {
+                        let where = {
+                            name: {
+                                $like: `%${query.q.course.name}%`
+                            }
+                        };
+                        courseInclude.where = where;
+                        delete query.q.course;
+                    }
+                    innerInclude = courseInclude;
+                    includeTableName = 'application';
                 }
-                newIncludes.push(include);
+
+                let alreadyExistsInclude = newIncludes.find(i => i.model === db[includeTableName]);
+                if (alreadyExistsInclude) {
+                    if (alreadyExistsInclude.include) {
+                        alreadyExistsInclude.include.push(innerInclude);
+                    } else {
+                        alreadyExistsInclude.include = [innerInclude];
+                    }
+                } else {
+                    include = {
+                        model: db[includeTableName],
+                        required,
+                        where: includeWhere,
+                    };
+                    if (innerInclude) {
+                        include.include = [innerInclude];
+                    }
+                    newIncludes.push(include);
+                }
                 if (query.q[includeTableName])
                     delete query.q[includeTableName];
             }
@@ -92,6 +139,7 @@ controller.getAll = async function (req, res, next) {
             count
         });
     } catch (e) {
+        console.log(e);
         next(new ControllerError(e.message, 400, 'Payment controller'));
     }
 

@@ -256,4 +256,35 @@ controller.exists = async (req, res, next) => {
     }
 };
 
+controller.getLessons = async (req, res, next) => {
+    try {
+        let client = await db.client.findByPk(
+            req.params.id,
+            {
+                include: [
+                    {
+                        model: db.application,
+                        include: [
+                            {
+                                model: db.lesson,
+                                through: db.journal,
+                                required: true
+                            },
+                            {
+                                model: db.course
+                            }
+                        ]
+                    },
+                    {
+                        model: db.comment
+                    }
+                ]
+            }
+        );
+        return res.json(client);
+    } catch (e) {
+        return next(new ControllerError(e.message, 400, 'Client controller'));
+    }
+};
+
 module.exports = controller;

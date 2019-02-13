@@ -133,6 +133,36 @@ controller.competitorApplications = async function (req, res, next) {
     }
 };
 
+controller.paymentStat = async (req, res, next) => {
+    try {
+        const startDate = req.query.q && req.query.q.startDate ? req.query.q.startDate : '1970-01-01';
+        const endDate = req.query.q && req.query.q.endDate ? req.query.q.endDate : '3000-12-12';
+        let stat = await db.sequelize.query(
+                `select c.id as courseId,SUM(p.amount) as sum, c.name as courseName, 'paid'
+                 from payment p
+                        join application a on p.applicationId = a.id
+                        join course c on a.courseId = c.id
+                 where !ISNULL(p.paymentDate)
+                   and p.paymentDate >= :startDate
+                   and p.paymentDate <= :endDate
+                 group by c.id
+                 union
+                 select c.id as courseId, SUM(p.expectedAmount) as sum, c.name as courseName, 'expected'
+                 from payment p
+                        join application a on p.applicationId = a.id
+                        join course c on a.courseId = c.id
+                 where ISNULL(p.paymentDate)
+                   and p.expectedDate >= :startDate
+                   and p.expectedDate <= :endDate
+                 group by c.id;`,
+            {replacements: {startDate, endDate}}
+        );
+        res.json(stat[0]);
+    } catch (e) {
+        next(new ControllerError(e.message, 400, 'Statistic controller'));
+    }
+};
+
 module.exports = controller;
 
 

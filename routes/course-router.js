@@ -4,7 +4,7 @@ let guard = require('node-auth-guard');
 let ROLES = require('../config/roles');
 
 router.route('/')
-    .get(guard.roles(ROLES.BOSS_ROLE, ROLES.MANAGER_ROLE, ROLES.TEACHER_ROLE),controllers.course.getAll)
+    .get(controllers.course.getAll)
     .post(guard.roles(ROLES.BOSS_ROLE, ROLES.MANAGER_ROLE),controllers.course.create);
 
 router.route('/:id')
