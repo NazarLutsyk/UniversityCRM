@@ -152,8 +152,18 @@ controller.update = async function (req, res, next) {
     try {
         ObjectHelper.clean(req.body, db.client.notUpdatableFields);
         let id = req.params.id;
-        let model = await db.client.findById(id);
+        let model = await db.client.findByPk(id);
         if (model) {
+            if (_.has(req.body, 'address')) {
+                let address = await model.getAddress();
+                if (req.body.address && address) {
+                    await address.updateAttributes(req.body.address)
+                } else if (req.body.address && !address) {
+                    await model.setAddress(db.address.build(req.body.address));
+                } else if (address && !req.body.address) {
+                    await address.destroy();
+                }
+            }
             res.status(201).json(await model.update(req.body));
         } else {
             next(new ControllerError('Model not found', 400, 'Client controller'))

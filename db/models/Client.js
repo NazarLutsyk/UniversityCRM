@@ -1,3 +1,4 @@
+let _ = require('lodash');
 let validators = require('../validators');
 
 const tableName = 'client';
@@ -9,7 +10,8 @@ const foreignKeys = {
     file: 'clientId',
     audioCall: 'clientId',
     social: 'clientId',
-    competitorApplication: 'clientId'
+    competitorApplication: 'clientId',
+    address: 'clientId',
 };
 
 module.exports = (sequelize, DataTypes) => {
@@ -37,46 +39,53 @@ module.exports = (sequelize, DataTypes) => {
     }, {});
 
     Client.associate = function (models) {
-        Client.hasMany(models.task, {
+        Client.Tasks = Client.hasMany(models.task, {
             foreignKey: foreignKeys.task,
             onDelete: 'cascade',
             onUpdate: 'cascade',
             hooks: true
         });
-        Client.hasMany(models.application, {
+        Client.Applications = Client.hasMany(models.application, {
             foreignKey: foreignKeys.application,
             onDelete: 'cascade',
             onUpdate: 'cascade',
             hooks: true
         });
-        Client.hasMany(models.comment, {
+        Client.Comments = Client.hasMany(models.comment, {
             foreignKey: foreignKeys.comment,
             onDelete: 'cascade',
             onUpdate: 'cascade',
             hooks: true
         });
-        Client.hasMany(models.audio_call, {
+        Client.AudioCalls = Client.hasMany(models.audio_call, {
             foreignKey: foreignKeys.audioCall,
             onDelete: 'cascade',
             onUpdate: 'cascade',
             hooks: true
         });
-        Client.hasMany(models.file, {
+        Client.Files = Client.hasMany(models.file, {
             foreignKey: foreignKeys.file,
             onDelete: 'cascade',
             onUpdate: 'cascade',
             hooks: true
         });
-        Client.hasMany(models.social, {
+        Client.Socials = Client.hasMany(models.social, {
             foreignKey: foreignKeys.social,
             onDelete: 'cascade',
             onUpdate: 'cascade',
             hooks: true
         });
-        Client.hasMany(models.competitor_application, {
+        Client.CompetitorApplications = Client.hasMany(models.competitor_application, {
             foreignKey: foreignKeys.competitorApplication,
             onDelete: 'cascade',
             onUpdate: 'cascade',
+            hooks: true
+        });
+        Client.Address = Client.hasOne(models.address, {
+            foreignKey: foreignKeys.address,
+            onDelete: 'cascade',
+            onUpdate: 'cascade',
+            allowNull: false,
             hooks: true
         });
     };
@@ -85,11 +94,17 @@ module.exports = (sequelize, DataTypes) => {
 
     Client.supersave = async function (client) {
         ['name', 'surname', 'phone', 'email'].forEach((value) => {
-            if (client[value]) {
+            if (typeof client[value] === 'string') {
                 client[value] = client[value].trim();
+            } else {
+                client[value] = client[value];
             }
         });
-        return await Client.create(client);
+        const include = [];
+        if (_.has(client, 'address')) {
+            include.push(Client.Address);
+        }
+        return await Client.create(client, {include});
     };
 
     Client.notUpdatableFields = [];
