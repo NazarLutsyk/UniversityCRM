@@ -16,7 +16,7 @@ let controller = {};
 controller.getById = async function (req, res, next) {
     try {
         let query = req.query;
-        let models = await db.client.findById(
+        let models = await db.client.findByPk(
             req.params.id,
             {
                 attributes: query.attributes,
@@ -293,6 +293,15 @@ controller.getLessons = async (req, res, next) => {
         );
         return res.json(client);
     } catch (e) {
+        return next(new ControllerError(e.message, 400, 'Client controller'));
+    }
+};
+
+controller.getAddresses = async (req, res, next) => {
+    try {
+        res.json(await db.address.findAll());
+    } catch (e) {
+        console.log(e);
         return next(new ControllerError(e.message, 400, 'Client controller'));
     }
 };
