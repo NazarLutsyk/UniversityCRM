@@ -16,8 +16,7 @@ module.exports = (sequelize, DataTypes) => {
     const Application = sequelize.define(tableName, {
         date: DataTypes.DATEONLY,
         fullPrice: DataTypes.INTEGER,
-        discount: DataTypes.INTEGER,
-        resultPrice: DataTypes.INTEGER,
+        discount: DataTypes.STRING,
         leftToPay: DataTypes.INTEGER,
         hasPractice: DataTypes.TINYINT,
         wantPractice: DataTypes.TINYINT,
@@ -75,13 +74,12 @@ module.exports = (sequelize, DataTypes) => {
         foreignKeys.client,
         foreignKeys.city,
         foreignKeys.course,
-        'discount',
-        'resultPrice',
     ];
     Application.requiredFileds = [
         foreignKeys.client,
         foreignKeys.course,
         foreignKeys.city,
+        'fullPrice',
         'date'
     ];
 

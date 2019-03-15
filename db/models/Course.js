@@ -10,8 +10,6 @@ module.exports = (sequelize, DataTypes) => {
     const Course = sequelize.define(tableName, {
         name: DataTypes.STRING,
         fullPrice: DataTypes.INTEGER,
-        discount: DataTypes.INTEGER,
-        resultPrice: DataTypes.INTEGER,
     }, {});
 
     Course.associate = function (models) {
@@ -22,8 +20,8 @@ module.exports = (sequelize, DataTypes) => {
 
     Course.tableName = tableName;
 
-    Course.notUpdatableFields = ['resultPrice'];
-    Course.requiredFileds = ['name', 'fullPrice'];
+    Course.notUpdatableFields = [];
+    Course.requiredFileds = ['name'];
 
     return Course;
 };

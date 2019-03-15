@@ -72,7 +72,7 @@ imap.once('ready', function () {
                 now.setDate(now.getDate() - 1);
                 const since = `${MONTHS[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;
 
-                imap.search(['UNSEEN', ['FROM', 'nlutsik3@gmail.com'], ['SINCE', since]], function (err, results) {
+                imap.search(['UNSEEN', ['FROM', 'info@owu.com.ua'], ['SINCE', since]], function (err, results) {
                     if (err) emitter.emit('error', err);
 
                     let imapQuery = imap.fetch(results, {bodies: '', markSeen: true});

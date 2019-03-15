@@ -60,12 +60,7 @@ controller.create = async function (req, res, next) {
         if (!ObjectHelper.has(req.body, db.course.requiredFileds)) {
             return next(new ControllerError('Missed required fields! ' + db.course.requiredFileds, 400, 'Course controller'));
         }
-        let courseBuild = req.body;
-        courseBuild.discount = req.body.discount ? req.body.discount : 0;
-        courseBuild.resultPrice = courseBuild.fullPrice - (courseBuild.fullPrice * (courseBuild.discount / 100));
-
-        let model = await db.course.create(courseBuild);
-
+        let model = await db.course.create(req.body);
         res.status(201).json(model);
     } catch (e) {
         next(new ControllerError(e.message, 400, 'Course controller'));
@@ -74,14 +69,10 @@ controller.create = async function (req, res, next) {
 controller.update = async function (req, res, next) {
     try {
         ObjectHelper.clean(req.body, db.course.notUpdatableFields);
-
         let id = req.params.id;
-        let courseBuild = req.body;
-        courseBuild.discount = req.body.discount ? req.body.discount : 0;
-        courseBuild.resultPrice = courseBuild.fullPrice - (courseBuild.fullPrice * (courseBuild.discount / 100));
         let model = await db.course.findById(id);
         if (model) {
-            res.status(201).json(await model.update(courseBuild));
+            res.status(201).json(await model.update(req.body));
         } else {
             next(new ControllerError('Model not found', 400, 'Course controller'))
         }

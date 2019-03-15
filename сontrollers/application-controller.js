@@ -162,12 +162,7 @@ controller.create = async function (req, res, next) {
             delete req.body.sources;
         }
         let applicationBuild = req.body;
-        let course = await db.course.findById(req.body.courseId);
-
-        applicationBuild.discount = req.body.discount ? req.body.discount : course.discount;
-        applicationBuild.fullPrice = course.fullPrice;
-        applicationBuild.resultPrice = applicationBuild.fullPrice - (applicationBuild.fullPrice * (applicationBuild.discount / 100));
-        applicationBuild.leftToPay = applicationBuild.resultPrice;
+        applicationBuild.leftToPay = req.body.fullPrice;
 
         let model = await db.application.create(applicationBuild);
 
