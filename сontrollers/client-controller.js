@@ -35,7 +35,22 @@ controller.getAll = async function (req, res, next) {
     try {
         let freebies = [];
         let query = req.query;
-
+        if (_.has(query.q, 'fullname.$like')) {
+            console.log(query.q.fullname);
+            query.q.$or = [
+                            {
+                                name: {
+                                    $like: `%${query.q.fullname.$like}%`
+                                }
+                            },
+                            {
+                                surname: {
+                                    $like: `%${query.q.fullname.$like}%`
+                                }
+                            }
+                        ];
+            delete query.q.fullname;
+        }
         if (_.has(query.q, 'name.$like')) {
             query.q.name.$like = `%${query.q.name.$like}%`
         }
@@ -43,6 +58,7 @@ controller.getAll = async function (req, res, next) {
             query.q.surname.$like = `%${query.q.surname.$like}%`
         }
         if (_.has(query.q, 'phone.$like')) {
+            console.log(query.q.phone.$like);
             query.q.phone.$like = `%${query.q.phone.$like}%`
         }
         if (_.has(query.q, 'email.$like')) {
@@ -253,6 +269,7 @@ controller.exists = async (req, res, next) => {
                 }
             });
         }
+
         if (where.$or.length > 0) {
             let founded = await db.client.findAll({
                 where
