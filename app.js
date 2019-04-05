@@ -1,6 +1,5 @@
 let createError = require('http-errors');
 let express = require('express');
-let path = require('path');
 let cookieParser = require('cookie-parser');
 let logger = require('morgan');
 let cors = require('cors');
@@ -8,6 +7,7 @@ let session = require('express-session');
 let helmet = require('helmet');
 let guard = require('node-auth-guard');
 let db = require('./db/models');
+
 let SequelizeStore = require('connect-session-sequelize')(session.Store);
 
 require('./config/passport');
