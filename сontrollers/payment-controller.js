@@ -413,8 +413,14 @@ function createPaymentFile(currentPaymentInfo, courseInfo, clientInfo, createdFi
     worksheet.cell(11, 1, 11, 4, true).string('Квитанція №').style(alingRightBolt);
     worksheet.cell(11, 5).string(paymentName()).style(styleNormalAlingCenterHorizont);
     worksheet.cell(11, 6).string('від').style(styleBold);
+    let arrOfPaymentDate = currentPaymentInfo.paymentDate.split('-');
+    let dateArr = [];
+    for(let i = arrOfPaymentDate.length - 1; i > -1; i--){
+        dateArr.push(arrOfPaymentDate[i]);
+    }
+    const payDate = dateArr.join('.');
     worksheet.cell(11, 7)
-        .date(new Date())
+        .string(payDate)
         .style(styleForDate);
     worksheet.column(7).setWidth(13);
     worksheet.cell(12, 1, 12, 9, true).style({border: {
@@ -452,7 +458,7 @@ function paymentName() {
     const getMonth = dateTime.getMonth();
     const month = getMonth < 10 ? arrOfNumbersForMonth[getMonth] : getMonth;
     const arrOfNumbersForDay = [0, '01', '02', '03', '04', '05', '06', '07', '08', '09'];
-    const getDay = dateTime.getDay();
+    const getDay = dateTime.getDate();
     const day = getDay < 10 ? arrOfNumbersForDay[getDay] : getDay;
     const hour = dateTime.getHours();
     const minutes = dateTime.getMinutes();
