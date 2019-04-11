@@ -13,7 +13,8 @@ module.exports = (sequelize, DataTypes) => {
         startDate: DataTypes.DATEONLY,
         startTime: DataTypes.TIME,
         freePractice: DataTypes.INTEGER,
-        usedPractice: DataTypes.INTEGER
+        usedPractice: DataTypes.INTEGER,
+        teacher: DataTypes.STRING,
     }, {});
 
     Group.associate = function (models) {
