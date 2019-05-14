@@ -36,7 +36,6 @@ controller.getAll = async function (req, res, next) {
         let freebies = [];
         let query = req.query;
         if (_.has(query.q, 'fullname.$like')) {
-            console.log(query.q.fullname);
             query.q.$or = [
                             {
                                 name: {
@@ -64,6 +63,7 @@ controller.getAll = async function (req, res, next) {
         if (_.has(query.q, 'email.$like')) {
             query.q.email.$like = `%${query.q.email.$like}%`
         }
+
         if (_.has(query.q, 'freebie')) {
             const rawResult = await db.sequelize.query(
                     `select clientId, SUM(fullPrice) as sum
@@ -77,7 +77,6 @@ controller.getAll = async function (req, res, next) {
             }
             delete query.q.freebie;
         }
-
 
         let newIncludes = [];
         if (query.include.length > 0) {
@@ -126,8 +125,8 @@ controller.getAll = async function (req, res, next) {
                     delete query.q[includeTableName];
             }
         }
-        query.include = newIncludes;
 
+        query.include = newIncludes;
         let models = await db.client.findAll(
             {
                 where: query.q,

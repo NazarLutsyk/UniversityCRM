@@ -162,6 +162,27 @@ controller.paymentStat = async (req, res, next) => {
         next(new ControllerError(e.message, 400, 'Statistic controller'));
     }
 };
+controller.clientStatus = async (req, res, next) => {
+    try {
+        const startDate = req.query.q && req.query.q.startDate ? req.query.q.startDate : '1970-01-01';
+        const endDate = req.query.q && req.query.q.endDate ? req.query.q.endDate : '3000-12-12';
+        let stat = await db.sequelize.query(
+                `
+              select s.name as status, COUNT(s.id) as count, s.color as color
+                from client c
+                  join status s
+                  on c.statusId = s.id
+                    where c.createdAt >= :startDate
+                    and c.createdAt <= :endDate
+              group by statusId;
+            `,
+            {replacements: {startDate, endDate}}
+        );
+        res.json(stat[0]);
+    } catch (e) {
+        next(new ControllerError(e.message, 400, 'Statistic controller'));
+    }
+};
 
 module.exports = controller;
 

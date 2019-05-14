@@ -8,5 +8,6 @@ router.get('/course-application', controllers.statistic.courseApplication);
 router.get('/group-journal', controllers.statistic.groupJournal);
 router.get('/competitor-application', controllers.statistic.competitorApplications);
 router.get('/payments-statistic', controllers.statistic.paymentStat);
+router.get('/client-statuses-statistic', controllers.statistic.clientStatus);
 
 module.exports = router;

@@ -10,7 +10,9 @@ controller.getByCourseId = async function (req, res, next) {
     try {
         let offset = req.query.offset ? req.query.offset : 0;
         let limit = req.query.limit ? req.query.limit : 9;
+
         let query = req.query.q.fullname ? `%${req.query.q.fullname}%` : '%%';
+
         let stat = await db.sequelize.query(
                 `
               select CONCAT(c.name, ' ', c.surname)                             as fullname,

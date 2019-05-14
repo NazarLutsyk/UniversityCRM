@@ -28,7 +28,6 @@ controller.getAll = async function (req, res, next) {
     try {
         let query = req.query;
 
-
         if (_.has(query.q, 'name.$like')) {
             query.q.name.$like = `%${query.q.name.$like}%`
         }
@@ -72,7 +71,6 @@ controller.getAll = async function (req, res, next) {
             }
         }
         query.include = newIncludes;
-
         let models = await db.group.findAll(
             {
                 where: query.q,
