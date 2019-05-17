@@ -7,6 +7,10 @@ module.exports = (sequelize, DataTypes) => {
     const Eapplication = sequelize.define(tableName, {
         name: DataTypes.STRING,
         surname: DataTypes.STRING,
+        age: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
+        },
         city: DataTypes.STRING,
         phone: DataTypes.STRING,
         email: DataTypes.STRING,

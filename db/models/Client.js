@@ -31,6 +31,10 @@ module.exports = (sequelize, DataTypes) => {
                 hasLetters: validators.hasLetters,
             }
         },
+        age: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
+        },
         phone: {
             type: DataTypes.STRING,
         },

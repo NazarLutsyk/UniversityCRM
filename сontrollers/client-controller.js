@@ -56,6 +56,9 @@ controller.getAll = async function (req, res, next) {
         if (_.has(query.q, 'surname.$like')) {
             query.q.surname.$like = `%${query.q.surname.$like}%`
         }
+        if (_.has(query.q, 'age.$like')) {
+            query.q.age.$like = `%${query.q.age.$like}%`
+        }
         if (_.has(query.q, 'phone.$like')) {
             console.log(query.q.phone.$like);
             query.q.phone.$like = `%${query.q.phone.$like}%`
