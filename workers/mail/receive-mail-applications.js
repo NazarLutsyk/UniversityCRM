@@ -28,7 +28,6 @@ function openInbox(cb) {
 }
 
 function performMessage(stream, info) {
-    // JSON regular \{(?:[^{}]|(?R))*\}}
     let buffer = '';
     stream.on('data', function (chunk) {
         buffer += chunk.toString('utf8');
@@ -36,18 +35,14 @@ function performMessage(stream, info) {
     stream.on('end', function () {
         simpleParser(buffer)
             .then(parsed => {
-                    let jsonApp = parsed
-                        .html
-                        .replace(/&quot;/g, '\"')
-                        .replace(/(<a.*?>|<\/a>)/gmi, '')
-                        .match(/\{(?:[^{}]|(R?))*\}/igm)[0];
-                    console.log(jsonApp);
+                const arr = parsed.text.split('textForSplit');
+                const eappObj = JSON.parse(arr[1]);
                     emitter.emit('data',
                         {
                             from: parsed.from.value[0].address,
                             to: parsed.to.value[0].address,
                             subject: parsed.subject,
-                            json: jsonApp ? JSON.parse(jsonApp) : null
+                            json: eappObj
                         }
                     );
                 }
@@ -84,6 +79,7 @@ imap.once('ready', function () {
                     imapQuery.on('error', function (err) {
                         emitter.emit('error', err);
                     });
+
                 });
             });
         });
