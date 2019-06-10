@@ -32,6 +32,11 @@ controller.getAll = async function (req, res, next) {
             query.q.name.$like = `%${query.q.name.$like}%`
         }
 
+        if (query.q.expirationDate) {
+            query.q.expirationDate = {
+                $gte: query.q.expirationDate
+            };
+        }
 
         let newIncludes = [];
         if (query.include.length > 0) {
@@ -81,14 +86,12 @@ controller.getAll = async function (req, res, next) {
                 include: query.include
             },
         );
-
         let count = await db.group.count(
             {
                 where: query.q,
                 include: query.include,
             }
         );
-
         res.json({
             models,
             count
@@ -96,7 +99,6 @@ controller.getAll = async function (req, res, next) {
     } catch (e) {
         next(new ControllerError(e.message, 400, 'Group controller'));
     }
-
 };
 controller.create = async function (req, res, next) {
     try {

@@ -11,6 +11,7 @@ module.exports = (sequelize, DataTypes) => {
     const Group = sequelize.define(tableName, {
         name: DataTypes.STRING,
         startDate: DataTypes.DATEONLY,
+        expirationDate: DataTypes.DATEONLY,
         startTime: DataTypes.TIME,
         freePractice: DataTypes.INTEGER,
         usedPractice: DataTypes.INTEGER,
@@ -40,6 +41,7 @@ module.exports = (sequelize, DataTypes) => {
         'name',
         'startDate',
         'startTime',
+        'expirationDate',
         foreignKeys.city,
         foreignKeys.course
     ];

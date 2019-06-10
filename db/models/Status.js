@@ -6,9 +6,10 @@ const foreignKeys = {
 
 module.exports = (sequelize, DataTypes) => {
     const Status = sequelize.define(tableName, {
-            name: DataTypes.STRING,
-            color: DataTypes.STRING
-        }, {});
+        name: DataTypes.STRING,
+        color: DataTypes.STRING,
+        description: DataTypes.STRING
+    }, {});
     Status.associate = function (models) {
         Status.hasMany(models.client, {foreignKey: foreignKeys.client});
     };
@@ -18,7 +19,8 @@ module.exports = (sequelize, DataTypes) => {
     Status.notUpdatableFields = [];
     Status.requiredFileds = [
         'name',
-        'color'
+        'color',
+        'description'
     ];
 
     return Status;
