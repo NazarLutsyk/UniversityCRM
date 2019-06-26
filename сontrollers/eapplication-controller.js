@@ -63,7 +63,7 @@ controller.create = async function (req, res, next) {
 controller.update = async function (req, res, next) {
     try {
         let id = req.params.id;
-        let model = await db.eapplication.findById(id);
+        let model = await db.eapplication.findByPk(id);
         if (model) {
             res.status(201).json(await model.update(req.body));
         } else {

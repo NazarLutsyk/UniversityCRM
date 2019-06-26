@@ -22,6 +22,7 @@ module.exports = (sequelize, DataTypes) => {
         comment: DataTypes.STRING,
         date: DataTypes.DATEONLY,
         wantPractice: DataTypes.TINYINT,
+        active: DataTypes.TINYINT,
     }, {});
 
     Eapplication.associate = function (models) {

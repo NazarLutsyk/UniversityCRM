@@ -124,7 +124,6 @@ controller.getAll = async function (req, res, next) {
             }
         }
         query.include = newIncludes;
-
         let models = await db.application.findAll(
             {
                 where: query.q,

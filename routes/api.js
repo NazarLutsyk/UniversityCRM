@@ -31,6 +31,7 @@ let SocialRouter = require('./social-router');
 let CompetitorRouter = require('./competitor-router');
 let CompetitorApplicationRouter = require('./competitor-application-router');
 let RatingRouter = require('./rating-router');
+let AppByEappRouter = require('./app-by-eapp-router');
 
 router.use('/applications', authMiddleware.isLoggedIn, ApplicationRouter);
 router.use('/audiocalls', authMiddleware.isLoggedIn, AudiocallRouter);
@@ -57,5 +58,6 @@ router.use('/socials', authMiddleware.isLoggedIn, SocialRouter);
 router.use('/competitors', authMiddleware.isLoggedIn, guard.roles(ROLES.BOSS_ROLE, ROLES.MANAGER_ROLE), CompetitorRouter);
 router.use('/competitor-applications', authMiddleware.isLoggedIn, guard.roles(ROLES.BOSS_ROLE, ROLES.MANAGER_ROLE), CompetitorApplicationRouter);
 router.use('/ratings', authMiddleware.isLoggedIn, RatingRouter);
+router.use('/app-by-eapp', authMiddleware.isLoggedIn, guard.roles(ROLES.BOSS_ROLE, ROLES.MANAGER_ROLE), AppByEappRouter);
 
 module.exports = router;

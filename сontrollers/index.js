@@ -25,5 +25,6 @@ controllers.social = require('./social-controller');
 controllers.competitor = require('./competitor-controller');
 controllers.competitorApplication = require('./competitor-application-controller');
 controllers.rating = require('./rating-controller');
+controllers.appByEapp = require('./app-by-eapp-controller');
 
 module.exports = controllers;

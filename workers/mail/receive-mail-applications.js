@@ -36,8 +36,11 @@ function performMessage(stream, info) {
         simpleParser(buffer)
             .then(parsed => {
                 const arr = parsed.text.split('textForSplit');
+                if (arr.length < 2) {
+                    return false;
+                }
                 const eappObj = JSON.parse(arr[1]);
-                    emitter.emit('data',
+                emitter.emit('data',
                         {
                             from: parsed.from.value[0].address,
                             to: parsed.to.value[0].address,
@@ -61,12 +64,13 @@ imap.once('ready', function () {
     openInbox((err, box) => {
         imap.on('mail', (countOfNewMessagesArr) => {
             openInbox(function (err, box) {
-                if (err) emitter.emit('error', err);
+                if (err) {
+                    emitter.emit('error', err);
+                }
 
                 const now = new Date();
                 now.setDate(now.getDate() - 1);
                 const since = `${MONTHS[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;
-
                 imap.search(['UNSEEN', ['FROM', 'info@owu.com.ua'], ['SINCE', since]], function (err, results) {
                     if (err) emitter.emit('error', err);
 
