@@ -25,5 +25,15 @@ router.use(
     guard.roles(ROLES.BOSS_ROLE, ROLES.MANAGER_ROLE, ROLES.TEACHER_ROLE),
     express.static(path.join(__dirname, '../public', 'upload', 'payments'))
 );
+router.use(
+    '/phones',
+    guard.roles(ROLES.BOSS_ROLE, ROLES.MANAGER_ROLE, ROLES.TEACHER_ROLE),
+    express.static(path.join(__dirname, '../public', 'upload', 'phones'))
+);
+router.use(
+    '/emails',
+    guard.roles(ROLES.BOSS_ROLE, ROLES.MANAGER_ROLE, ROLES.TEACHER_ROLE),
+    express.static(path.join(__dirname, '../public', 'upload', 'emails'))
+);
 
 module.exports = router;
