@@ -26,5 +26,6 @@ controllers.competitor = require('./competitor-controller');
 controllers.competitorApplication = require('./competitor-application-controller');
 controllers.rating = require('./rating-controller');
 controllers.appByEapp = require('./app-by-eapp-controller');
+controllers.paymentStatus = require('./payment-status-controller');
 
 module.exports = controllers;

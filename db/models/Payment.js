@@ -3,6 +3,7 @@ const tableName = 'payment';
 const foreignKeys = {
     application: 'applicationId',
     file: 'paymentId',
+    payment_status: 'paymentStatusId'
 };
 
 module.exports = (sequelize, DataTypes) => {
@@ -11,7 +12,10 @@ module.exports = (sequelize, DataTypes) => {
         amount: DataTypes.INTEGER,
         expectedAmount: DataTypes.INTEGER,
         expectedDate: DataTypes.DATEONLY,
-        paymentDate: DataTypes.DATEONLY
+        paymentDate: DataTypes.DATEONLY,
+        paymentStatusId: {
+            type: DataTypes.STRING
+        }
     }, {});
 
     Payment.associate = function (models) {
@@ -22,7 +26,15 @@ module.exports = (sequelize, DataTypes) => {
             onUpdate: 'cascade',
             hooks: true
         });
+        Payment.PaymentStatus = Payment.belongsTo(models.payment_status, {
+            foreignKey: {
+                field: foreignKeys.payment_status,
+                allowNull: false
+            }
+        });
     };
+
+
 
     Payment.tableName = tableName;
 
@@ -32,7 +44,8 @@ module.exports = (sequelize, DataTypes) => {
     Payment.requiredFileds = [
         'expectedDate',
         'expectedAmount',
-        foreignKeys.application
+        foreignKeys.application,
+        foreignKeys.payment_status
     ];
 
     return Payment;
