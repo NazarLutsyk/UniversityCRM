@@ -26,11 +26,9 @@ controller.getById = async function (req, res, next) {
 controller.getAll = async function (req, res, next) {
     try {
         let query = req.query;
-
         if (_.has(query.q, 'name.$like')) {
             query.q.name.$like = `%${query.q.name.$like}%`
         }
-
         let models = await db.course.findAll(
             {
                 where: query.q,

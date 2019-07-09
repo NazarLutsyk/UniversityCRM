@@ -12,6 +12,7 @@ const foreignKeys = {
     social: 'clientId',
     competitorApplication: 'clientId',
     address: 'clientId',
+    status: 'statusId'
 };
 
 module.exports = (sequelize, DataTypes) => {
@@ -30,10 +31,17 @@ module.exports = (sequelize, DataTypes) => {
                 hasLetters: validators.hasLetters,
             }
         },
+        age: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
+        },
         phone: {
             type: DataTypes.STRING,
         },
         email: {
+            type: DataTypes.STRING
+        },
+        statusId: {
             type: DataTypes.STRING
         }
     }, {});
@@ -87,6 +95,12 @@ module.exports = (sequelize, DataTypes) => {
             onUpdate: 'cascade',
             allowNull: false,
             hooks: true
+        });
+        Client.Status = Client.belongsTo(models.status, {
+            foreignKey: {
+                field: foreignKeys.status,
+                allowNull: false
+            }
         });
     };
 

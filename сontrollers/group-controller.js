@@ -3,6 +3,10 @@ let _ = require('lodash');
 let db = require('../db/models');
 let ControllerError = require('../errors/ControllerError');
 let ObjectHelper = require('../helpers/object-helper');
+let path = require('path');
+const numbersFilePath = path.join(__dirname, '../public', 'upload', 'phones');
+const emailsFilePath = path.join(__dirname, '../public', 'upload', 'emails');
+const fs = require('fs');
 
 let controller = {};
 
@@ -28,11 +32,15 @@ controller.getAll = async function (req, res, next) {
     try {
         let query = req.query;
 
-
         if (_.has(query.q, 'name.$like')) {
             query.q.name.$like = `%${query.q.name.$like}%`
         }
 
+        if (query.q.expirationDate) {
+            query.q.expirationDate = {
+                $gte: query.q.expirationDate
+            };
+        }
 
         let newIncludes = [];
         if (query.include.length > 0) {
@@ -72,7 +80,6 @@ controller.getAll = async function (req, res, next) {
             }
         }
         query.include = newIncludes;
-
         let models = await db.group.findAll(
             {
                 where: query.q,
@@ -83,14 +90,12 @@ controller.getAll = async function (req, res, next) {
                 include: query.include
             },
         );
-
         let count = await db.group.count(
             {
                 where: query.q,
                 include: query.include,
             }
         );
-
         res.json({
             models,
             count
@@ -98,7 +103,6 @@ controller.getAll = async function (req, res, next) {
     } catch (e) {
         next(new ControllerError(e.message, 400, 'Group controller'));
     }
-
 };
 controller.create = async function (req, res, next) {
     try {
@@ -133,6 +137,57 @@ controller.remove = async function (req, res, next) {
         next(new ControllerError(e.message, 400, 'Group controller'))
     }
 };
+controller.getNumbersByGroupId = async function (req, res, next) {
+    try {
+        let groupId = req.params.id;
+        let models = await db.application.findAll(
+            {
+                where: {
+                    groupId: groupId
+                }
+            },
+        );
+        let phoneNumbers = [];
+        for (let i = 0; i < models.length; i++) {
+            let client = await db.client.findByPk( models[i].clientId);
+            phoneNumbers.push(client.phone);
+        }
+        fs.writeFile(path.join(numbersFilePath, 'phoneNumbers.txt'), phoneNumbers.join('\n'), function(err) {
+            if(err) {
+                return console.log(err);
+            }
+        });
+        res.status(201).json({path: path.join('phones', 'phoneNumbers.txt')});
+    } catch (e) {
+        next(new ControllerError(e.message, 400, 'Group controller'))
+    }
+};
+controller.getEmailsByGroupId = async function (req, res, next) {
+    try {
+        let groupId = req.params.id;
+        let models = await db.application.findAll(
+            {
+                where: {
+                    groupId: groupId
+                }
+            },
+        );
+        let emails = [];
+        for (let i = 0; i < models.length; i++) {
+            let client = await db.client.findByPk( models[i].clientId);
+            emails.push(client.email);
+        }
+        fs.writeFile(path.join(emailsFilePath, 'emailsByGroup.txt'), emails.join('\n'), function(err) {
+            if(err) {
+                return console.log(err);
+            }
+        });
+        res.status(201).json({path: path.join('emails', 'emailsByGroup.txt')});
+    } catch (e) {
+        next(new ControllerError(e.message, 400, 'Group controller'))
+    }
+};
+
 
 
 module.exports = controller;

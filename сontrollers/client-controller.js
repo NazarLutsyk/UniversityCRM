@@ -35,12 +35,29 @@ controller.getAll = async function (req, res, next) {
     try {
         let freebies = [];
         let query = req.query;
-
+        if (_.has(query.q, 'fullname.$like')) {
+            query.q.$or = [
+                            {
+                                name: {
+                                    $like: `%${query.q.fullname.$like}%`
+                                }
+                            },
+                            {
+                                surname: {
+                                    $like: `%${query.q.fullname.$like}%`
+                                }
+                            }
+                        ];
+            delete query.q.fullname;
+        }
         if (_.has(query.q, 'name.$like')) {
             query.q.name.$like = `%${query.q.name.$like}%`
         }
         if (_.has(query.q, 'surname.$like')) {
             query.q.surname.$like = `%${query.q.surname.$like}%`
+        }
+        if (_.has(query.q, 'age.$like')) {
+            query.q.age.$like = `%${query.q.age.$like}%`
         }
         if (_.has(query.q, 'phone.$like')) {
             query.q.phone.$like = `%${query.q.phone.$like}%`
@@ -48,6 +65,7 @@ controller.getAll = async function (req, res, next) {
         if (_.has(query.q, 'email.$like')) {
             query.q.email.$like = `%${query.q.email.$like}%`
         }
+
         if (_.has(query.q, 'freebie')) {
             const rawResult = await db.sequelize.query(
                     `select clientId, SUM(fullPrice) as sum
@@ -61,7 +79,6 @@ controller.getAll = async function (req, res, next) {
             }
             delete query.q.freebie;
         }
-
 
         let newIncludes = [];
         if (query.include.length > 0) {
@@ -110,8 +127,8 @@ controller.getAll = async function (req, res, next) {
                     delete query.q[includeTableName];
             }
         }
-        query.include = newIncludes;
 
+        query.include = newIncludes;
         let models = await db.client.findAll(
             {
                 where: query.q,
@@ -253,6 +270,7 @@ controller.exists = async (req, res, next) => {
                 }
             });
         }
+
         if (where.$or.length > 0) {
             let founded = await db.client.findAll({
                 where

@@ -28,7 +28,6 @@ function openInbox(cb) {
 }
 
 function performMessage(stream, info) {
-    // JSON regular \{(?:[^{}]|(?R))*\}}
     let buffer = '';
     stream.on('data', function (chunk) {
         buffer += chunk.toString('utf8');
@@ -36,18 +35,17 @@ function performMessage(stream, info) {
     stream.on('end', function () {
         simpleParser(buffer)
             .then(parsed => {
-                    let jsonApp = parsed
-                        .html
-                        .replace(/&quot;/g, '\"')
-                        .replace(/(<a.*?>|<\/a>)/gmi, '')
-                        .match(/\{(?:[^{}]|(R?))*\}/igm)[0];
-                    console.log(jsonApp);
-                    emitter.emit('data',
+                const arr = parsed.text.split('textForSplit');
+                if (arr.length < 2) {
+                    return false;
+                }
+                const eappObj = JSON.parse(arr[1]);
+                emitter.emit('data',
                         {
                             from: parsed.from.value[0].address,
                             to: parsed.to.value[0].address,
                             subject: parsed.subject,
-                            json: jsonApp ? JSON.parse(jsonApp) : null
+                            json: eappObj
                         }
                     );
                 }
@@ -66,12 +64,13 @@ imap.once('ready', function () {
     openInbox((err, box) => {
         imap.on('mail', (countOfNewMessagesArr) => {
             openInbox(function (err, box) {
-                if (err) emitter.emit('error', err);
+                if (err) {
+                    emitter.emit('error', err);
+                }
 
                 const now = new Date();
                 now.setDate(now.getDate() - 1);
                 const since = `${MONTHS[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;
-
                 imap.search(['UNSEEN', ['FROM', 'info@owu.com.ua'], ['SINCE', since]], function (err, results) {
                     if (err) emitter.emit('error', err);
 
@@ -84,6 +83,7 @@ imap.once('ready', function () {
                     imapQuery.on('error', function (err) {
                         emitter.emit('error', err);
                     });
+
                 });
             });
         });

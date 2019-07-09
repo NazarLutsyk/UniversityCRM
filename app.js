@@ -51,6 +51,7 @@ app.get('/', (req, res, next) => {
 });
 
 app.use('/api', apiRouter);
+
 app.use('/upload', staticRouter);
 
 
