@@ -40,6 +40,7 @@ controller.getAll = async function (req, res, next) {
             query.q.number.$like = `%${query.q.number.$like}%`
         }
 
+
         let newIncludes = [];
         if (query.include.length > 0) {
             for (let includeTableName of query.include) {
@@ -397,15 +398,15 @@ function createPaymentFile(currentPaymentInfo, courseInfo, clientInfo, createdFi
             horizontal: 'center'
         }
     });
-    worksheet.cell(2, 1, 2, 9, true).string('ФОП  Онішко Андрій Броніславович').style(styleBold);
+    worksheet.cell(2, 1, 2, 9, true).string('').style(styleBold);
     worksheet.column(2).setWidth(12);
     worksheet.column(3).setWidth(25);
     worksheet.column(4).setWidth(8);
-    worksheet.cell(3, 1, 3, 9, true).string('info@owu.com.ua').style(styleBold);
-    worksheet.cell(4, 1, 4, 9, true).string('банк АТ "ОТП банк" м Київ').style(styleBold);
-    worksheet.cell(5, 1, 5, 9, true).string('МФО 300528').style(styleBold);
-    worksheet.cell(6, 1, 6, 9, true).string('р/р 26000455025762').style(styleBold);
-    worksheet.cell(7, 1, 7, 9, true).string('ІПН 2965618354').style(styleBold);
+    worksheet.cell(3, 1, 3, 9, true).string('ФОП  Журавльов Сергій Сергійович').style(styleBold);
+    worksheet.cell(4, 1, 4, 9, true).string('банк АТ "АльфаБанк"').style(styleBold);
+    worksheet.cell(5, 1, 5, 9, true).string('МФО 300346').style(styleBold);
+    worksheet.cell(6, 1, 6, 9, true).string('р/р 26003062512801').style(styleBold);
+    worksheet.cell(7, 1, 7, 9, true).string('ІПН 3212202619').style(styleBold);
     worksheet.cell(8, 1, 8, 2, true).string('Одержувач послуг:').style(styleBold);
     worksheet.cell(8, 3, 8, 5, true).string(`${clientInfo.name} ${clientInfo.surname}`).style(styleNormal);
     worksheet.column(5).setWidth(15);
@@ -444,7 +445,7 @@ function createPaymentFile(currentPaymentInfo, courseInfo, clientInfo, createdFi
     worksheet.cell(16, 9).string(`${currentPaymentInfo.amount}`).style(styleNormalTextCenterBorderBottomRight);
     worksheet.cell(18, 1, 18, 9, true).string('Сума прописом:').style(styleBold);
     worksheet.cell(19, 1, 19, 9, true).string(`${writtenNumber(currentPaymentInfo.amount)} грн.`).style(styleNormal);
-    worksheet.cell(21, 4, 21, 6, true).string('ФОП  Онішко А. Б.').style(alingRightBolt);
+    worksheet.cell(21, 4, 21, 6, true).string('ФОП  Журавльов С. С.').style(alingRightBolt);
     worksheet.cell(21, 7, 21, 9, true).style(styleBoldTextCenterBorderBottom);
     worksheet.cell(22, 7, 22, 9, true).string('Підпис').style(styleNormalAlingCenterHorizont);
 
